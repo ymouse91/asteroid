@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Asteroid Escape – Builder (PC)</title>
+  <style>
+    :root{
+      --cell: 54px;
+      --gap: 2px;
+
+      --bg: #0b1533;
+      --ink: #eaf0ff;
+      --muted: rgba(255,255,255,.75);
+      --accent: #7bd4ff;
+      --warn: #ffcc66;
+      --ok: #67d690;
+
+      --panel: rgba(0,0,0,.22);
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --r: 16px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 30% 10%, #162a67 0%, var(--bg) 55%, #070c1d 100%);
+      color: var(--ink);
+      min-height: 100svh;
+      padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+    }
+    .app{
+      max-width: 1200px;
+      margin: 0 auto;
+      display:grid;
+      grid-template-columns: 460px 1fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 1040px){
+      .app{ grid-template-columns: 1fr; }
+    }
+    .card{
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+    h1{ font-size: 18px; margin: 0 0 8px 0; letter-spacing:.2px; }
+    .small{ font-size: 12px; color: var(--muted); line-height: 1.35; }
+    .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .row.tight{ gap:6px; }
+    button{
+      appearance:none; border:0;
+      background:#1c2b5c; color:var(--ink);
+      padding:10px 12px; border-radius:12px;
+      font-weight:800; cursor:pointer;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+    }
+    button:hover{ filter:brightness(1.05); }
+    button:active{ transform: translateY(1px); }
+    .btn2{ background:#1c4a5c; }
+    .btnOk{ background:#2b5c1c; }
+    .btnDanger{ background:#5a1c2b; }
+    .btnGhost{ background: rgba(255,255,255,.10); box-shadow:none; border:1px solid rgba(255,255,255,.14); }
+
+    select, input[type="text"]{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      outline: none;
+    }
+    select{ cursor:pointer; }
+
+    .label{
+      font-size: 12px; color: var(--muted); font-weight:800;
+      margin: 10px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+    .hr{ height:1px; background: rgba(255,255,255,.10); margin: 10px 0; }
+
+    /* palette: 2 columns, big thumbnails */
+    .palette{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .pieceBtn{
+      display:grid;
+      grid-template-columns: 112px 1fr;
+      grid-template-rows: auto auto;
+      gap:10px 10px;
+      align-items:center;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:none;
+      padding:10px;
+      border-radius: 16px;
+      font-weight:900;
+      text-align:left;
+      min-height: 128px;
+    }
+    .thumb{
+      grid-row: 1 / span 2;
+      width: 112px;
+      height: 112px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .thumb svg{ width: 112px; height: 112px; display:block; }
+    .pTitle{
+      font-size: 14px;
+      line-height: 1.1;
+      letter-spacing: .2px;
+    }
+    .rotPill{
+      justify-self:start;
+      font-size: 12px; opacity:.95;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+      font-weight: 900;
+      min-width: 72px;
+      text-align:center;
+    }
+    .pieceBtn.selected{
+      outline: 2px solid rgba(123,212,255,.60);
+      background: rgba(123,212,255,.14);
+    }
+    .pieceBtn.used{ opacity:.65; }
+
+    /* board */
+    .boardWrap{
+      display:grid;
+      justify-items:center;
+      gap: 10px;
+      padding-top: calc(var(--cell) + var(--gap) + 6px);
+      padding-bottom: calc(var(--cell) + var(--gap) + 10px);
+    }
+    .board{
+      position:relative;
+      width: calc(6*var(--cell) + 5*var(--gap));
+      height: calc(6*var(--cell) + 5*var(--gap));
+      background: rgba(0,0,0,.18);
+      border-radius: 18px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+      overflow: visible;
+    }
+    .grid{
+      position:absolute;
+      inset:10px;
+      display:grid;
+      grid-template-columns: repeat(6, var(--cell));
+      grid-template-rows: repeat(6, var(--cell));
+      gap: var(--gap);
+      z-index: 1;
+    }
+    .cell{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 10px;
+    }
+    .slotOverlay{
+      position:absolute;
+      inset:10px;
+      z-index: 9;
+      display:grid;
+      grid-template-columns: repeat(3, calc(2*var(--cell) + 1*var(--gap)));
+      grid-template-rows: repeat(3, calc(2*var(--cell) + 1*var(--gap)));
+      gap: 0px;
+      pointer-events:auto;
+    }
+    .slotBtn{
+      border-radius: 14px;
+      border: 2px dashed rgba(255,255,255,.12);
+      background: transparent;
+      cursor:pointer;
+      position:relative;
+      padding:0;
+    }
+    .slotBtn:hover{
+      border-color: rgba(123,212,255,.30);
+      background: rgba(123,212,255,.06);
+    }
+    .slotBtn.filled{
+      border-style: solid;
+      border-color: rgba(255,255,255,.10);
+    }
+    .slotBtn.empty{
+      border-style: solid;
+      border-color: rgba(123,212,255,.70);
+      background: rgba(123,212,255,.08);
+    }
+    .slotBtn .n{
+      position:absolute;
+      left:8px; top:8px;
+      font-size: 12px;
+      opacity:.55;
+      font-weight:900;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    .piece{
+      position:absolute;
+      left: 10px;
+      top: 10px;
+      transform: translate(var(--x), var(--y));
+      pointer-events:none;
+      z-index: 3;
+    }
+    .piece .mask{
+      position:relative;
+      display:grid;
+      grid-template-columns: repeat(var(--w), var(--cell));
+      grid-template-rows: repeat(var(--h), var(--cell));
+      gap: var(--gap);
+    }
+    .sq{
+      width: var(--cell);
+      height: var(--cell);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+    }
+    .sq.empty{ background: transparent; border-color: transparent; }
+    .sq.base{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.16);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+    }
+    .art{
+      position:absolute;
+      left: calc(-1*(var(--cell) + var(--gap)));
+      top:  calc(-1*(var(--cell) + var(--gap)));
+      width: calc(8*var(--cell) + 7*var(--gap));
+      height: calc(8*var(--cell) + 7*var(--gap));
+      pointer-events:none;
+    }
+
+    .status{ font-weight:900; color: var(--warn); min-height: 18px; text-align:center; }
+    .ok{ color: var(--ok); }
+
+    textarea{
+      width:100%;
+      min-height: 180px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      resize: vertical;
+    }
+    .fileRow{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top: 8px; }
+	
+		.pieceBtn{
+  position: relative;
+}
+
+.pieceBtn.used::after{
+  content: "KÄYTÖSSÄ";
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.55);
+  color: #ffcc66;
+  border: 1px solid rgba(255,204,102,0.8);
+}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="card">
+      <h1>Asteroid Escape – Pulmaeditori (builder)</h1>
+      <div class="small">
+        Paletit: klikkaa palan korttia (valitse). <b>Planeetat/asteroidit pyörivät</b> klikkauksesta. <b>Avaruusalus ei pyöri.</b><br>
+        Pelilauta: klikkaa slottia (1–9) asettaaksesi/poistaaksesi. Tyhjä slotti on korostettu.
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="label">Pulmat</div>
+      <div class="row tight">
+        <button class="btnGhost" id="btnPrev">◀</button>
+        <select id="puzzleSelect" style="flex:1; min-width: 180px;"></select>
+        <button class="btnGhost" id="btnNext">▶</button>
+      </div>
+      <div class="row tight" style="margin-top:8px;">
+        <input id="puzzleName" type="text" placeholder="Pulman nimi" style="flex:1; min-width: 180px;">
+        <button class="btn2" id="btnNew">Uusi</button>
+        <button class="btnDanger" id="btnDelete">Poista</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row">
+        <button class="btn2" id="btnClear">Tyhjennä nykyinen</button>
+        <button class="btnGhost" id="btnSetEmpty">Valitse tyhjä</button>
+        <button class="btnOk" id="btnExport">Export JSON</button>
+        <button class="btn2" id="btnApply">Import JSON</button>
+      </div>
+
+      <div class="fileRow">
+        <button class="btnGhost" id="btnDownload">Tallenna .json</button>
+        <label class="btnGhost" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; padding:10px 12px; border-radius:12px;">
+          Lataa .json
+          <input id="fileIn" type="file" accept=".json,application/json" style="display:none;">
+        </label>
+      </div>
+
+      <div class="label">Palat</div>
+      <div class="palette" id="palette"></div>
+
+      <div class="label">Pulmatiedosto JSON</div>
+      <textarea id="jsonBox" spellcheck="false"></textarea>
+
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="card">
+      <div class="small">Slotit 1–9 (3×3). Yksi slot on aina tyhjä (korostettu).</div>
+      <div class="boardWrap">
+        <div class="board" id="board">
+          <div class="grid" id="grid"></div>
+          <div class="slotOverlay" id="slots"></div>
+        </div>
+        <div class="status" id="status2"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // --- date stamp in status ---
+  const TODAY = new Date();
+  const pad2 = n => String(n).padStart(2,"0");
+  const dateFi = `${pad2(TODAY.getDate())}.${pad2(TODAY.getMonth()+1)}.${TODAY.getFullYear()}`;
+
+  const statusEl = document.getElementById("status");
+  const status2El = document.getElementById("status2");
+  function setStatus(msg="", ok=false){
+    const t = msg ? `${dateFi} – ${msg}` : `${dateFi}`;
+    statusEl.textContent = t;
+    status2El.textContent = t;
+    statusEl.className = "status" + (ok ? " ok" : "");
+    status2El.className = "status" + (ok ? " ok" : "");
+  }
+
+  // --- sizes ---
+  const rootStyle = getComputedStyle(document.documentElement);
+  const CELL = parseFloat(rootStyle.getPropertyValue("--cell")) || 54;
+  const GAP  = parseFloat(rootStyle.getPropertyValue("--gap"))  || 2;
+  const STEP = CELL + GAP;
+
+  const N0 = 6, L1 = 8, L1_OFF = 1, SLOT = 2;
+
+  const boardEl = document.getElementById("board");
+  const gridEl  = document.getElementById("grid");
+  const slotsEl = document.getElementById("slots");
+  const paletteEl = document.getElementById("palette");
+  const jsonBox = document.getElementById("jsonBox");
+
+  const selEl = document.getElementById("puzzleSelect");
+  const nameEl = document.getElementById("puzzleName");
+
+  // --- create base grid ---
+  for(let i=0;i<N0*N0;i++){
+    const d=document.createElement("div");
+    d.className="cell";
+    gridEl.appendChild(d);
+  }
+
+  // --- pieces (ASCII) ---
+  const pieceDefs = {
+    1: { name:"Ship", ascii:[ "xaax", "-oo-" ], fixedRot:true },
+    2: { name:"PlanetA", ascii:[ "xx", "aa", "oo" ]},
+    3: { name:"PlanetB", ascii:[ " -xx ", " oax", " oo-" ]},
+    4: { name:"Ast1", ascii:[ "oa", "oo" ]},
+    5: { name:"Ast2", ascii:[ "oa", "oo" ]},
+    6: { name:"Ast3", ascii:[ "oa", "oo" ]},
+    7: { name:"Ast4", ascii:[ "oa", "ao" ]},
+    8: { name:"Ast5", ascii:[ "oo", "aa" ]}
+  };
+
+  function parseAscii(ascii){
+    const rows = ascii.slice();
+    const h = rows.length;
+    const w = Math.max(...rows.map(r=>r.length));
+    const grid = rows.map(r => (r + " ".repeat(w)).slice(0,w).split(""));
+    const base = [];
+    const obj = [];
+    const isEmpty = (ch) => (ch === "-" || ch === " ");
+    for(let r=0;r<h;r++){
+      for(let c=0;c<w;c++){
+        const ch = grid[r][c];
+        if(isEmpty(ch)) continue;
+        if(ch === "o" || ch === "a") base.push([r,c]);
+        if(ch === "a" || ch === "x") obj.push([r,c,ch]);
+      }
+    }
+    if(base.length === 0) throw new Error("ASCII-maskissa ei ole base-ruutuja (o/a).");
+    const minR = Math.min(...base.map(p=>p[0]));
+    const minC = Math.min(...base.map(p=>p[1]));
+    return {
+      relBase: base.map(([r,c])=>[r-minR, c-minC]),
+      relObj:  obj.map(([r,c,t])=>[r-minR, c-minC, t])
+    };
+  }
+
+  // rotate around 2x2 base center (0.5,0.5), clockwise
+  function rotCoordCW(r,c,rot){
+    const y = r - 0.5;
+    const x = c - 0.5;
+    let ny=y, nx=x;
+    if(rot===1){ ny = x;  nx = -y; }
+    else if(rot===2){ ny = -y; nx = -x; }
+    else if(rot===3){ ny = -x; nx = y; }
+    return [Math.round(ny + 0.5), Math.round(nx + 0.5)];
+  }
+
+  const parsedDefs = {};
+  for(const idStr of Object.keys(pieceDefs)){
+    const id = Number(idStr);
+    parsedDefs[id] = { ...pieceDefs[id], ...parseAscii(pieceDefs[id].ascii) };
+  }
+
+  function getPieceCells(pid, slotR, slotC, rot){
+    const def = parsedDefs[pid];
+    const baseCells0 = def.relBase.map(([r,c]) => {
+      const [rr,cc]=rotCoordCW(r,c,rot);
+      return [slotR*SLOT + rr, slotC*SLOT + cc];
+    });
+    const objCells1 = def.relObj.map(([r,c,t]) => {
+      const [rr,cc]=rotCoordCW(r,c,rot);
+      const br = slotR*SLOT + rr;
+      const bc = slotC*SLOT + cc;
+      return [br + L1_OFF, bc + L1_OFF, t];
+    });
+    return { baseCells0, objCells1 };
+  }
+
+  // --- multi-puzzle storage ---
+  const DEFAULT_PUZZLE = () => ({
+    name: "",
+    emptySlot: 8,
+    slots: Array.from({length:9}, (_,i)=>({ slot:i+1, pid:0, rot:0 }))
+  });
+
+  let puzzles = [DEFAULT_PUZZLE()];
+  let cur = 0;
+
+  function slotDataFromPuzzle(puz){
+    // slotData index 1..9 => {pid,rot} or null (excluding empty)
+    const slotData = Array(10).fill(null);
+    for(const it of puz.slots){
+      if(!it || typeof it.slot !== "number") continue;
+      const s = it.slot|0;
+      if(s<1||s>9) continue;
+      const pid = it.pid|0;
+      const rot = (it.rot|0)&3;
+      if(pid>=1 && pid<=8) slotData[s] = { pid, rot };
+    }
+    // Ensure empty slot truly empty
+    if(puz.emptySlot>=1 && puz.emptySlot<=9) slotData[puz.emptySlot] = null;
+    return slotData;
+  }
+
+  function puzzleFromSlotData(name, emptySlot, slotData){
+    const slots = [];
+    for(let s=1;s<=9;s++){
+      if(s === emptySlot) slots.push({ slot:s, pid:0, rot:0 });
+      else if(slotData[s]) slots.push({ slot:s, pid:slotData[s].pid, rot:slotData[s].rot });
+      else slots.push({ slot:s, pid:0, rot:0 });
+    }
+    return { name: name || "", emptySlot, slots };
+  }
+
+  // --- current puzzle runtime ---
+  let slotData = slotDataFromPuzzle(puzzles[cur]);
+  let emptySlot = puzzles[cur].emptySlot;
+
+  // palette selection + rotation state
+  let selectedPid = 1;
+  const paletteRot = {};
+  for(let pid=1; pid<=8; pid++) paletteRot[pid]=0;
+
+  let selectEmptyMode = false;
+
+  function slotToRC(slot){
+    const s = slot-1;
+    return [Math.floor(s/3), s%3];
+  }
+  function rcToSlot(r,c){ return r*3 + c + 1; }
+
+  function isPieceUsed(pid){
+    for(let s=1;s<=9;s++){
+      if(slotData[s] && slotData[s].pid === pid) return true;
+    }
+    return false;
+  }
+  function findPieceSlot(pid){
+    for(let s=1;s<=9;s++){
+      if(slotData[s] && slotData[s].pid === pid) return s;
+    }
+    return null;
+  }
+
+  // --- slots overlay ---
+  function buildSlotOverlay(){
+    slotsEl.innerHTML = "";
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const slot = rcToSlot(r,c);
+        const b = document.createElement("button");
+        b.className = "slotBtn";
+        b.type = "button";
+        b.dataset.slot = String(slot);
+
+        const n = document.createElement("div");
+        n.className = "n";
+        n.textContent = String(slot);
+        b.appendChild(n);
+
+        b.addEventListener("click", () => onSlotClick(slot));
+        slotsEl.appendChild(b);
+      }
+    }
+  }
+
+  function markSlotButtons(){
+    const btns = [...slotsEl.querySelectorAll(".slotBtn")];
+    for(const b of btns){
+      const slot = Number(b.dataset.slot);
+      const filled = !!slotData[slot];
+      b.classList.toggle("filled", filled);
+      b.classList.toggle("empty", slot === emptySlot);
+    }
+  }
+
+  // --- thumbnails (SVG) ---
+function svgThumb(pid, rot){
+  // Tiivistetty thumbnail: rajaa piirto palan bbox-alueeseen (layer1-koordinaatisto)
+  const cs = 12.2;   // cell size in thumb
+  const gp = 1.3;    // gap
+  const pad = 6.0;
+
+  const { baseCells0, objCells1 } = getPieceCells(pid, 0, 0, rot);
+
+  // baseCells0 on 6x6 (layer0). Thumbissa käytetään layer1-koordinaatistoa (8x8),
+  // joten siirretään base myös +1,+1 kuten ennenkin.
+  const baseCells1 = baseCells0.map(([r0,c0]) => [r0 + 1, c0 + 1]);
+
+  const obj = objCells1
+    .filter(([r,c]) => r>=0 && c>=0 && r<8 && c<8)
+    .map(([r,c,t]) => ({ r, c, t }));
+
+  // BBOX kaikesta sisällöstä (base + objektit)
+  const allCells = [
+    ...baseCells1.map(([r,c]) => [r,c]),
+    ...obj.map(o => [o.r, o.c]),
+  ];
+
+  // Turvavarmistus (ei pitäisi tapahtua)
+  if(allCells.length === 0){
+    const Wsvg = pad*2 + 8*cs + 7*gp;
+    return `<svg viewBox="0 0 ${Wsvg} ${Wsvg}" xmlns="http://www.w3.org/2000/svg"></svg>`;
+  }
+
+  const minR = Math.min(...allCells.map(p => p[0]));
+  const maxR = Math.max(...allCells.map(p => p[0]));
+  const minC = Math.min(...allCells.map(p => p[1]));
+  const maxC = Math.max(...allCells.map(p => p[1]));
+
+  const H = (maxR - minR + 1);
+  const W = (maxC - minC + 1);
+
+  const Wsvg = pad*2 + W*cs + (W-1)*gp;
+  const Hsvg = pad*2 + H*cs + (H-1)*gp;
+
+  const baseSet = new Set(baseCells1.map(([r,c]) => `${r},${c}`));
+
+  const rects = [];
+  for(let r=0; r<H; r++){
+    for(let c=0; c<W; c++){
+      const rr = r + minR;
+      const cc = c + minC;
+      const x = pad + c*(cs+gp);
+      const y = pad + r*(cs+gp);
+      const base = baseSet.has(`${rr},${cc}`);
+      rects.push(
+        `<rect x="${x}" y="${y}" width="${cs}" height="${cs}" rx="3.0" ry="3.0"
+          fill="${base ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.06)'}"
+          stroke="rgba(255,255,255,.10)" stroke-width="0.9"/>`
+      );
+    }
+  }
+
+  const centerLocal = (lr, lc) => ({
+    x: pad + lc*(cs+gp) + cs/2,
+    y: pad + lr*(cs+gp) + cs/2
+  });
+
+  // Objektit local-koordinaatteihin bboxin sisällä
+  const objL = obj
+    .filter(o => o.r>=minR && o.r<=maxR && o.c>=minC && o.c<=maxC)
+    .map(o => ({ lr: o.r - minR, lc: o.c - minC, t: o.t }));
+
+  let shapes = "";
+
+  if(pid >= 4 && pid <= 8){
+    // asteroidit
+    const fill = (pid % 2 === 0) ? "#bfc3c9" : "#8f949c";
+    const rad = cs * 0.42;
+    for(const oc of objL){
+      if(oc.t !== "a") continue;
+      const p = centerLocal(oc.lr, oc.lc);
+      shapes += `<circle cx="${p.x}" cy="${p.y}" r="${rad}" fill="${fill}" stroke="rgba(255,255,255,.26)" stroke-width="1.0"/>`;
+      shapes += `<circle cx="${p.x-rad*0.25}" cy="${p.y-rad*0.12}" r="${rad*0.22}" fill="rgba(255,255,255,.20)"/>`;
+    }
+  } else if(pid === 2 || pid === 3){
+    // planeetat
+    if(objL.length){
+      const rs = objL.map(o=>o.lr), csA = objL.map(o=>o.lc);
+      const oMinR = Math.min(...rs), oMaxR = Math.max(...rs);
+      const oMinC = Math.min(...csA), oMaxC = Math.max(...csA);
+
+      const x0 = pad + oMinC*(cs+gp);
+      const y0 = pad + oMinR*(cs+gp);
+      const bw = (oMaxC-oMinC+1)*cs + (oMaxC-oMinC)*gp;
+      const bh = (oMaxR-oMinR+1)*cs + (oMaxR-oMinR)*gp;
+      const cx = x0 + bw/2;
+      const cy = y0 + bh/2;
+      const r  = Math.min(bw,bh) * 0.46;
+
+      const fill = (pid === 2) ? "#d8dde5" : "#b7bcc6";
+      shapes += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="rgba(255,255,255,.26)" stroke-width="1.3"/>`;
+      shapes += `<circle cx="${cx-r*0.25}" cy="${cy-r*0.10}" r="${r*0.18}" fill="rgba(0,0,0,.08)"/>`;
+      shapes += `<circle cx="${cx+r*0.20}" cy="${cy+r*0.15}" r="${r*0.12}" fill="rgba(0,0,0,.10)"/>`;
+    }
+  } else if(pid === 1){
+    // alus (silhuetti)
+    if(objL.length){
+      const rs = objL.map(o=>o.lr), csA = objL.map(o=>o.lc);
+      const oMinR = Math.min(...rs), oMaxR = Math.max(...rs);
+      const oMinC = Math.min(...csA), oMaxC = Math.max(...csA);
+
+      const x0 = pad + oMinC*(cs+gp);
+      const y0 = pad + oMinR*(cs+gp);
+      const bw = (oMaxC-oMinC+1)*cs + (oMaxC-oMinC)*gp;
+      const bh = (oMaxR-oMinR+1)*cs + (oMaxR-oMinR)*gp;
+
+      const cX = x0 + bw/2;
+      const topY = y0 + 2;
+      const botY = y0 + bh - 2;
+      const wingL = x0 + 2;
+      const wingR = x0 + bw - 2;
+      const wingMidY = y0 + bh*0.56;
+      const bodyW = bw * 0.32;
+      const bodyL = cX - bodyW/2;
+      const bodyR = cX + bodyW/2;
+      const noseY = botY + Math.min(10, cs*0.9);
+
+      shapes += `<path d="M ${wingL} ${wingMidY} L ${bodyL} ${topY+2} L ${bodyR} ${topY+2} L ${wingR} ${wingMidY} L ${bodyR} ${botY} L ${cX} ${noseY} L ${bodyL} ${botY} Z"
+        fill="rgba(255,255,255,.92)" stroke="rgba(255,255,255,.30)" stroke-width="1.1" stroke-linejoin="round"/>`;
+      shapes += `<rect x="${cX - bodyW*0.30}" y="${topY+7}" width="${bodyW*0.60}" height="${Math.max(10, (botY-topY)*0.42)}" rx="3.0" ry="3.0" fill="rgba(0,0,0,.12)"/>`;
+    }
+  }
+
+  return `<svg viewBox="0 0 ${Wsvg} ${Hsvg}" width="${Wsvg}" height="${Hsvg}" xmlns="http://www.w3.org/2000/svg">${rects.join("")}${shapes}</svg>`;
+}
+
+
+  function buildPalette(){
+    paletteEl.innerHTML = "";
+    for(let pid=1; pid<=8; pid++){
+      const def = pieceDefs[pid];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "pieceBtn";
+
+      const thumb = document.createElement("div");
+      thumb.className = "thumb";
+      thumb.innerHTML = svgThumb(pid, paletteRot[pid]);
+
+      const title = document.createElement("div");
+      title.className = "pTitle";
+      title.textContent = `${pid}: ${def.name}`;
+
+      btn.appendChild(thumb);
+      btn.appendChild(title);
+
+      btn.addEventListener("click", () => {
+        // 1) ensimmäinen klikkaus: vain valitse (ei rotaatiota)
+        // 2) seuraavat klikkaukset samalle palalle: pyöritä (paitsi Ship)
+        if(selectedPid !== pid){
+          selectedPid = pid;
+          setStatus(`Valittu pala ${pid}.`, true);
+          renderAll(true);
+          return;
+        }
+
+        // sama pala uudelleen -> rotaatio
+        if(pid !== 1){
+          paletteRot[pid] = (paletteRot[pid] + 1) & 3;
+        }else{
+          paletteRot[pid] = 0;
+        }
+        setStatus(`Pala ${pid} pyöräytetty (rot ${paletteRot[pid]}).`, true);
+        renderAll(true);
+      });
+
+      if(pid === selectedPid) btn.classList.add("selected");
+      if(isPieceUsed(pid)) btn.classList.add("used");
+
+      paletteEl.appendChild(btn);
+    }
+  }
+
+  // --- board click logic ---
+  function onSlotClick(slot){
+    if(selectEmptyMode){
+      // pick new empty; if filled, move that piece into old empty
+      if(slot === emptySlot){
+        selectEmptyMode = false;
+        setStatus("Tyhjä pysyi samana.", true);
+        renderAll(true);
+        return;
+      }
+      if(slotData[slot]){
+        // move piece to old empty
+        slotData[emptySlot] = slotData[slot];
+        slotData[slot] = null;
+      }
+      emptySlot = slot;
+      selectEmptyMode = false;
+      setStatus(`Tyhjä slotti: ${slot}.`, true);
+      renderAll(true);
+      return;
+    }
+
+    // clicking empty slot does nothing (it must remain empty)
+    if(slot === emptySlot){
+      setStatus(`Slotti ${slot} on tyhjä. Jos haluat vaihtaa tyhjää, paina "Valitse tyhjä".`, false);
+      return;
+    }
+
+    // remove piece
+    if(slotData[slot]){
+      const oldPid = slotData[slot].pid;
+      slotData[slot] = null;
+      setStatus(`Poistettu pala ${oldPid} slotista ${slot}.`, true);
+      renderAll(true);
+      return;
+    }
+
+    // place selected piece
+    const pid = selectedPid;
+    const rot = (pid === 1) ? 0 : paletteRot[pid];
+
+    const existing = findPieceSlot(pid);
+    if(existing){
+      setStatus(`Pala ${pid} on jo slotissa ${existing}. Poista se ensin.`, false);
+      return;
+    }
+    slotData[slot] = { pid, rot };
+    setStatus(`Asetettu pala ${pid} (rot ${rot}) slottiin ${slot}.`, true);
+    renderAll(true);
+  }
+
+  // --- render board art ---
+  function clearPieces(){
+    [...boardEl.querySelectorAll(".piece")].forEach(el=>el.remove());
+  }
+  function svgEl(tag, attrs={}){
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for(const [k,v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+    return el;
+  }
+  function pathD(points){
+    return points.map((p,i)=> (i===0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ") + " Z";
+  }
+  function l1CenterLocal(lr, lc){
+    return { cx: lc*STEP + CELL/2, cy: lr*STEP + CELL/2 };
+  }
+
+  function renderAll(autosave=false){
+    clearPieces();
+
+    for(let slot=1; slot<=9; slot++){
+      const info = slotData[slot];
+      if(!info) continue;
+
+      const [sr, sc] = slotToRC(slot);
+      const pid = info.pid;
+      const rot = (pid === 1) ? 0 : info.rot;
+
+      const { baseCells0, objCells1 } = getPieceCells(pid, sr, sc, rot);
+      const baseSet = new Set(baseCells0.map(([r,c]) => r+","+c));
+
+      const minBaseR = Math.min(...baseCells0.map(x=>x[0]));
+      const minBaseC = Math.min(...baseCells0.map(x=>x[1]));
+      const maxBaseR = Math.max(...baseCells0.map(x=>x[0]));
+      const maxBaseC = Math.max(...baseCells0.map(x=>x[1]));
+      const w = (maxBaseC - minBaseC + 1);
+      const h = (maxBaseR - minBaseR + 1);
+
+      const pieceEl = document.createElement("div");
+      pieceEl.className = "piece";
+      pieceEl.style.setProperty("--x", `calc(${minBaseC}*(var(--cell) + var(--gap)))`);
+      pieceEl.style.setProperty("--y", `calc(${minBaseR}*(var(--cell) + var(--gap)))`);
+      pieceEl.style.setProperty("--w", w);
+      pieceEl.style.setProperty("--h", h);
+
+      const mask = document.createElement("div");
+      mask.className = "mask";
+
+      for(let rr=0; rr<h; rr++){
+        for(let cc=0; cc<w; cc++){
+          const br = minBaseR + rr;
+          const bc = minBaseC + cc;
+          const key = br+","+bc;
+          const sq = document.createElement("div");
+          sq.className = (baseSet.has(key) && br>=0 && bc>=0 && br<N0 && bc<N0) ? "sq base" : "sq empty";
+          mask.appendChild(sq);
+        }
+      }
+
+      const art = document.createElement("div");
+      art.className = "art";
+      const svg = svgEl("svg", {
+        width: (L1*CELL + (L1-1)*GAP),
+        height: (L1*CELL + (L1-1)*GAP),
+        viewBox: `0 0 ${L1*CELL + (L1-1)*GAP} ${L1*CELL + (L1-1)*GAP}`
+      });
+
+      const obj = objCells1
+        .filter(([r1,c1]) => r1>=0 && c1>=0 && r1<L1 && c1<L1)
+        .map(([r1,c1,t]) => ({ r1, c1, t, lr: r1 - minBaseR, lc: c1 - minBaseC }))
+        .filter(o => o.lr>=0 && o.lc>=0 && o.lr<L1 && o.lc<L1);
+
+      if(pid >= 4 && pid <= 8){
+        const fill = (pid % 2 === 0) ? "#bfc3c9" : "#8f949c";
+        const rad = CELL * 0.32;
+        for(const oc of obj){
+          if(oc.t !== "a") continue;
+          const p = l1CenterLocal(oc.lr, oc.lc);
+          svg.appendChild(svgEl("circle", { cx:p.cx, cy:p.cy, r:rad, fill, stroke:"rgba(255,255,255,.25)", "stroke-width":2 }));
+          svg.appendChild(svgEl("circle", { cx:p.cx-rad*0.25, cy:p.cy-rad*0.15, r:rad*0.22, fill:"rgba(255,255,255,.20)" }));
+        }
+      } else if(pid === 2 || pid === 3){
+        if(obj.length){
+          const minR = Math.min(...obj.map(o=>o.lr));
+          const maxR = Math.max(...obj.map(o=>o.lr));
+          const minC = Math.min(...obj.map(o=>o.lc));
+          const maxC = Math.max(...obj.map(o=>o.lc));
+          const x0 = minC*STEP;
+          const y0 = minR*STEP;
+          const bw = (maxC-minC+1)*CELL + (maxC-minC)*GAP;
+          const bh = (maxR-minR+1)*CELL + (maxR-minR)*GAP;
+          const cx = x0 + bw/2;
+          const cy = y0 + bh/2;
+          const r  = Math.min(bw, bh) * 0.48;
+          const fill = (pid === 2) ? "#d8dde5" : "#b7bcc6";
+          svg.appendChild(svgEl("circle", { cx, cy, r, fill, stroke:"rgba(255,255,255,.28)", "stroke-width":3 }));
+          svg.appendChild(svgEl("circle", { cx: cx-r*0.25, cy: cy-r*0.10, r: r*0.18, fill:"rgba(0,0,0,.08)" }));
+          svg.appendChild(svgEl("circle", { cx: cx+r*0.20, cy: cy+r*0.15, r: r*0.12, fill:"rgba(0,0,0,.10)" }));
+          svg.appendChild(svgEl("circle", { cx: cx+r*0.05, cy: cy-r*0.25, r: r*0.08, fill:"rgba(255,255,255,.20)" }));
+        }
+      } else if(pid === 1){
+        // ship: keep your flipped/nose-down style (simple)
+        if(obj.length){
+          const minR = Math.min(...obj.map(o=>o.lr));
+          const maxR = Math.max(...obj.map(o=>o.lr));
+          const minC = Math.min(...obj.map(o=>o.lc));
+          const maxC = Math.max(...obj.map(o=>o.lc));
+          const x0 = minC*STEP;
+          const y0 = minR*STEP;
+          const bw = (maxC-minC+1)*CELL + (maxC-minC)*GAP;
+          const bh = (maxR-minR+1)*CELL + (maxR-minR)*GAP;
+
+          const g = svgEl("g", { transform: `translate(0 ${2*(y0 + bh/2)}) scale(1 -1)` });
+          svg.appendChild(g);
+
+          const cx = x0 + bw/2;
+          const topY = y0 + 8;
+          const botY = y0 + bh - 8;
+          const wingL = x0 + 6;
+          const wingR = x0 + bw - 6;
+          const wingMidY = y0 + bh*0.52;
+          const bodyW = bw * 0.28;
+          const bodyL = cx - bodyW/2;
+          const bodyR = cx + bodyW/2;
+          const noseY = topY - Math.min(18, CELL*0.35);
+
+          const shipPath = pathD([
+            {x: wingL,  y: wingMidY},
+            {x: bodyL,  y: topY+6},
+            {x: cx,     y: noseY},
+            {x: bodyR,  y: topY+6},
+            {x: wingR,  y: wingMidY},
+            {x: bodyR,  y: botY},
+            {x: bodyL,  y: botY}
+          ]);
+
+          g.appendChild(svgEl("path", { d: shipPath, fill:"rgba(255,255,255,.92)", stroke:"rgba(255,255,255,.35)", "stroke-width":2, "stroke-linejoin":"round" }));
+
+          const innerW = bodyW * 0.72;
+          g.appendChild(svgEl("rect", {
+            x: cx - innerW/2,
+            y: topY + 14,
+            width: innerW,
+            height: Math.max(18, (botY - topY)*0.40),
+            rx: 10, ry: 10,
+            fill: "rgba(0,0,0,.12)"
+          }));
+
+          const engY1 = botY - 18;
+          const engY2 = botY - 6;
+          const engDx = Math.max(10, bodyW*0.18);
+          g.appendChild(svgEl("line", { x1: cx - engDx, y1: engY1, x2: cx - engDx, y2: engY2, stroke:"rgba(255,255,255,.85)", "stroke-width":6, "stroke-linecap":"round" }));
+          g.appendChild(svgEl("line", { x1: cx + engDx, y1: engY1, x2: cx + engDx, y2: engY2, stroke:"rgba(255,255,255,.85)", "stroke-width":6, "stroke-linecap":"round" }));
+        }
+      }
+
+      art.appendChild(svg);
+      mask.appendChild(art);
+      pieceEl.appendChild(mask);
+      boardEl.appendChild(pieceEl);
+    }
+
+    markSlotButtons();
+    buildPalette();
+    validateAndMaybeAutosave(autosave);
+  }
+
+  function validateState(){
+    // empty must be empty
+    if(slotData[emptySlot]) return { ok:false, msg:"Virhe: tyhjä slotti sisältää palan." };
+
+    // no duplicates
+    const used = new Set();
+    for(let s=1;s<=9;s++){
+      if(slotData[s]){
+        const pid = slotData[s].pid;
+        if(used.has(pid)) return { ok:false, msg:"Virhe: sama pala useammin kuin kerran." };
+        used.add(pid);
+      }
+    }
+    return { ok:true, msg:"OK." };
+  }
+
+  function saveCurrent(){
+    const name = (nameEl.value || "").trim();
+    puzzles[cur] = puzzleFromSlotData(name, emptySlot, slotData);
+    refreshPuzzleSelect(false);
+    exportAllToTextarea();
+  }
+
+  function validateAndMaybeAutosave(autosave){
+    const v = validateState();
+    if(v.ok){
+      setStatus("OK.", true);
+      if(autosave) saveCurrent();
+    }else{
+      setStatus(v.msg, false);
+      if(autosave) saveCurrent(); // still store, but user sees error
+    }
+  }
+
+  // --- puzzle UI ---
+  function refreshPuzzleSelect(keepIndex=true){
+    const prev = cur;
+    selEl.innerHTML = "";
+    for(let i=0;i<puzzles.length;i++){
+      const opt = document.createElement("option");
+      const nm = (puzzles[i].name || "").trim();
+      opt.value = String(i);
+      opt.textContent = nm ? `${i+1}: ${nm}` : `${i+1}: (nimetön)`;
+      selEl.appendChild(opt);
+    }
+    if(keepIndex){
+      cur = Math.min(prev, puzzles.length-1);
+    }
+    selEl.value = String(cur);
+  }
+
+  function loadPuzzle(index, skipSave=false){
+    index = Math.max(0, Math.min(puzzles.length-1, index|0));
+    // autosave current before switching (unless explicitly skipped)
+    if(!skipSave) saveCurrent();
+
+    cur = index;
+    const puz = puzzles[cur];
+    emptySlot = puz.emptySlot|0;
+    slotData = slotDataFromPuzzle(puz);
+
+    // ensure ship cannot store nonzero rot
+    for(let s=1;s<=9;s++){
+      if(slotData[s] && slotData[s].pid === 1) slotData[s].rot = 0;
+    }
+
+    nameEl.value = puz.name || "";
+    refreshPuzzleSelect(true);
+    renderAll(false);
+    exportAllToTextarea();
+    setStatus(`Pulma ${cur+1}/${puzzles.length} valittu.`, true);
+  }
+
+  function newPuzzle(){
+    saveCurrent();
+    const puz = DEFAULT_PUZZLE();
+    puz.name = `Pulma ${puzzles.length+1}`;
+    puzzles.push(puz);
+    loadPuzzle(puzzles.length-1);
+  }
+
+  function deletePuzzle(){
+    if(puzzles.length <= 1){
+      setStatus("Et voi poistaa viimeistä pulmaa.", false);
+      return;
+    }
+    const toDel = cur;
+    puzzles.splice(toDel, 1);
+    cur = Math.min(cur, puzzles.length-1);
+    loadPuzzle(cur);
+    setStatus("Pulma poistettu.", true);
+  }
+
+  // --- export/import multiple ---
+  function exportAll(){
+    return {
+      game: "AsteroidEscape",
+      version: 1,
+      puzzles: puzzles.map(p => ({
+        name: (p.name||"").trim(),
+        emptySlot: p.emptySlot|0,
+        slots: p.slots.map(s => ({ slot: s.slot|0, pid: s.pid|0, rot: (s.rot|0)&3 }))
+      }))
+    };
+  }
+
+  function exportAllToTextarea(){
+    jsonBox.value = JSON.stringify(exportAll(), null, 2);
+  }
+
+  function importFromObject(obj){
+    // Accept legacy single-puzzle shape: {emptySlot, slots:[...]}
+    let incoming = [];
+    if(obj && Array.isArray(obj.puzzles)){
+      incoming = obj.puzzles;
+    }else if(obj && Array.isArray(obj.slots)){
+      incoming = [obj];
+    }else if(Array.isArray(obj)){
+      // allow array of puzzles
+      incoming = obj;
+    }else{
+      throw new Error("JSON-muoto ei ole tunnistettavissa.");
+    }
+
+    const next = [];
+    for(const it of incoming){
+      if(!it || !Array.isArray(it.slots)) continue;
+      const puz = DEFAULT_PUZZLE();
+      puz.name = (it.name || "").trim();
+      puz.emptySlot = (it.emptySlot|0) || 8;
+      puz.slots = it.slots.map(s => ({
+        slot: s.slot|0,
+        pid: s.pid|0,
+        rot: (s.rot|0)&3
+      }));
+      // sanitize: ship rot forced 0
+      for(const s of puz.slots){
+        if(s.pid === 1) s.rot = 0;
+      }
+      next.push(puz);
+    }
+    if(next.length === 0) throw new Error("Yhtään kelvollista pulmaa ei löytynyt JSON:sta.");
+
+    puzzles = next;
+    cur = 0;
+    refreshPuzzleSelect(false);
+    loadPuzzle(0, true);
+    setStatus("Import onnistui.", true);
+  }
+
+  // --- buttons wiring ---
+  document.getElementById("btnPrev").addEventListener("click", () => loadPuzzle(cur-1));
+  document.getElementById("btnNext").addEventListener("click", () => loadPuzzle(cur+1));
+  document.getElementById("btnNew").addEventListener("click", newPuzzle);
+  document.getElementById("btnDelete").addEventListener("click", deletePuzzle);
+
+  selEl.addEventListener("change", () => loadPuzzle(Number(selEl.value)));
+  nameEl.addEventListener("input", () => {
+    // autosave name changes lightly
+    puzzles[cur].name = nameEl.value;
+    refreshPuzzleSelect(true);
+    exportAllToTextarea();
+  });
+
+  document.getElementById("btnClear").addEventListener("click", () => {
+    // clear only non-empty slots; keep emptySlot unchanged
+    for(let s=1;s<=9;s++){
+      if(s !== emptySlot) slotData[s] = null;
+    }
+    setStatus("Nykyinen pulma tyhjennetty (tyhjä slotti säilyi).", true);
+    renderAll(true);
+  });
+
+  document.getElementById("btnSetEmpty").addEventListener("click", () => {
+    selectEmptyMode = true;
+    setStatus("Klikkaa slottia, josta tulee tyhjä. (Jos siinä on pala, se siirtyy vanhaan tyhjään.)", true);
+  });
+
+  document.getElementById("btnExport").addEventListener("click", () => {
+    saveCurrent();
+    exportAllToTextarea();
+    setStatus("Export tehty JSON-kenttään.", true);
+  });
+
+  document.getElementById("btnApply").addEventListener("click", () => {
+    try{
+      const obj = JSON.parse(jsonBox.value.trim());
+      importFromObject(obj);
+    }catch(e){
+      setStatus("Import epäonnistui: " + (e && e.message ? e.message : "parsevirhe"), false);
+    }
+  });
+
+  document.getElementById("btnDownload").addEventListener("click", () => {
+    saveCurrent();
+    exportAllToTextarea();
+    const blob = new Blob([jsonBox.value], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "asteroid_escape_puzzles.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+    setStatus("Pulmatiedosto tallennettu.", true);
+  });
+
+  document.getElementById("fileIn").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    try{
+      const text = await f.text();
+      jsonBox.value = text;
+      const obj = JSON.parse(text);
+      importFromObject(obj);
+    }catch(err){
+      setStatus("Tiedoston luku/import epäonnistui.", false);
+    }
+    e.target.value = "";
+  });
+
+  // --- init ---
+  buildSlotOverlay();
+  refreshPuzzleSelect(false);
+  loadPuzzle(0);
+})();
+</script>
+</body>
+</html>

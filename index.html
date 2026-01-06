@@ -906,11 +906,25 @@ function exitShip(){
     setStatus(chk.reason);
     return;
   }
+
+  // Poista alus
   state.pieces.delete(1);
   state.removedShip = true;
-  setStatus("Avaruusalus poistui! (testi)");
   render();
+
+  setStatus("Avaruusalus poistui. Seuraava pulma…");
+
+  // pieni viive ennen seuraavaa pulmaa
+  setTimeout(() => {
+    const next =
+      (currentPuzzleIndex + 1) % puzzles.length;
+
+    applyPuzzleByIndex(next, null);
+    state.removedShip = false;
+    saveProgress();
+  }, 2000); // ← säädä viivettä tästä (ms)
 }
+
 
 
   function clearPieces(){

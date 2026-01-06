@@ -2,7 +2,13 @@
 <html lang="fi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+
+  <meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no">
+
   <title>Asteroid Escape</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0b1533">
@@ -160,7 +166,7 @@
 
       border-radius: 0 0 14px 14px;
       background: rgba(123,212,255,.25);
-      outline: 2px dashed rgba(123,212,255,.35);
+      outline: 2px dashed var(--warn); 
       outline-offset: 2px;
       transform: translate(12px, calc(var(--cell) + var(--gap)));
     }
@@ -282,7 +288,18 @@ for(let rr=0; rr<h; rr++){
   ...
 }
 
+@media (orientation: landscape) and (min-width: 900px) {
 
+  .board-wrapper{
+    transform: scale(1.30);
+    transform-origin: center center;
+  }
+
+}
+
+.board-wrapper{
+  touch-action: none;
+}
 
 </style>
 </head>
@@ -292,7 +309,7 @@ for(let rr=0; rr<h; rr++){
     <div class="top">
       <div class="title">
         <h1>Asteroid Escape</h1>
-        <small>Ohjaa avaruusalus turvaan asteroideilta. Klikkaa palaa, jota haluat siirtää.</small>
+        <small>Ohjaa avaruusalus alas turvaan asteroideilta.</small>
       </div>
       <div class="bar">
         <button class="hint" id="btnReset">Reset</button>
@@ -795,7 +812,7 @@ function canSlide(pid){
       if(blockingObj.has(nr + "," + nc)){
         return {
           ok:false,
-          reason:"Siipi/runko osuu esteeseen (a/x) siirron aikana."
+          reason:"Este! Siirto estetty."
         };
       }
     }
@@ -810,7 +827,7 @@ function canSlide(pid){
   if(!occRes.ok){
     return {
       ok:false,
-      reason:`Objekti törmäisi palaan ${occRes.clashWith} (L1 ${occRes.where}).`
+      reason:`Este! Siirto estetty.`
     };
   }
 
@@ -871,7 +888,7 @@ function canShipExit(){
     const nr = r1 + 1;
     if(nr >= L1) continue; // ulos = ok
     if(occ.has(nr+","+c1)){
-      return { ok:false, reason:"Este siiven/keulan edessä estää ulosliukumisen." };
+      return { ok:false, reason:"Este aluksen edessä estää siirron." };
     }
   }
 
@@ -1351,7 +1368,13 @@ document.querySelector(".exitGate").addEventListener("click", ()=>{
   exitShip();
 });
 
-  
+let lastTouchEnd = 0;
+document.addEventListener("touchend", e => {
+  const now = Date.now();
+  if (now - lastTouchEnd < 300) e.preventDefault();
+  lastTouchEnd = now;
+}, { passive: false });
+
   if(puzzleSelect){
     puzzleSelect.addEventListener("change", ()=>{
       const idx = Number(puzzleSelect.value);

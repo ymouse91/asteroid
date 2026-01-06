@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Asteroid Escape – test PWA</title>
+  <title>Asteroid Escape</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0b1533">
   <meta property="og:image" content="https://ymouse91.github.io/nopat/icon192.png">
@@ -75,8 +75,15 @@
     button:hover{filter:brightness(1.05)}
     button:active{transform:translateY(1px)}
     .danger{background:#5a1c2b}
-    .hint{background:#1c4a5c}
+
     .exit{background:#2b5c1c}
+
+.hint:hover{
+  background: rgba(123,212,255,.5);
+}
+.hint:active{
+  background: rgba(123,212,255,.35);
+}
 
     .wrap{
       display:grid;
@@ -98,20 +105,31 @@
       overflow: visible;
     }
 
-    .grid{
+    .slotGrid{
       position:absolute;
       inset:10px;
       display:grid;
-      grid-template-columns: repeat(6, var(--cell));
-      grid-template-rows: repeat(6, var(--cell));
+      grid-template-columns: repeat(3, calc(2*var(--cell) + var(--gap)));
+      grid-template-rows: repeat(3, calc(2*var(--cell) + var(--gap)));
       gap: var(--gap);
       z-index: 1;
+      pointer-events:none;
     }
-    .cell{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 10px;
+    .slot{
+      background: rgba(123,212,255,.2);
+      border: 4px solid rgba(123,212,255,.6);
+      border-radius: 14px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.22);
     }
+
+/* tyhjä 2×2 slot näkyviin selvästi */
+.slot.emptySlot{
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.25);
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.10) inset,
+    0 0 18px rgba(255,255,255,.10);
+}
 
     .exitGate{
       position:absolute;
@@ -256,7 +274,16 @@
     color: #fff;
   }
   
-  
+  const mask = document.createElement("div");
+mask.className = "mask";
+
+// draw base squares inside base bbox
+for(let rr=0; rr<h; rr++){
+  ...
+}
+
+
+
 </style>
 </head>
 
@@ -277,7 +304,7 @@
 
     <div class="wrap">
       <div class="board" id="board">
-        <div class="grid" id="grid"></div>
+        <div class="slotGrid" id="grid"></div>
         <div class="exitGate"><div title="Aukko (2 ruutua) alareunassa"></div></div>
       </div>
 
@@ -316,9 +343,9 @@
   const boardEl = document.getElementById("board");
   const gridEl = document.getElementById("grid");
 
-  for(let i=0;i<N0*N0;i++){
+  for(let i=0;i<9;i++){
     const d=document.createElement("div");
-    d.className="cell";
+    d.className="slot";
     gridEl.appendChild(d);
   }
 
@@ -928,21 +955,27 @@ function render(){
     mask.className = "mask";
 
     // draw base squares inside base bbox
-    for(let rr=0; rr<h; rr++){
-      for(let cc=0; cc<w; cc++){
-        const br = minBaseR + rr;
-        const bc = minBaseC + cc;
-        const key = br+","+bc;
+// 2×2 pala: piirrä yhtenäinen blokki, EI neljää .sq-ruutua
+if(w===2 && h===2){
+  mask.classList.add("solidTile");
+}else{
+  // draw base squares inside base bbox (muut palat ennallaan)
+  for(let rr=0; rr<h; rr++){
+    for(let cc=0; cc<w; cc++){
+      const br = minBaseR + rr;
+      const bc = minBaseC + cc;
+      const key = br+","+bc;
 
-        const sq = document.createElement("div");
-        if(baseSet.has(key) && br>=0 && bc>=0 && br<N0 && bc<N0){
-          sq.className = "sq base";
-        }else{
-          sq.className = "sq empty";
-        }
-        mask.appendChild(sq);
+      const sq = document.createElement("div");
+      if(baseSet.has(key) && br>=0 && bc>=0 && br<N0 && bc<N0){
+        sq.className = "sq base";
+      }else{
+        sq.className = "sq empty";
       }
+      mask.appendChild(sq);
     }
+  }
+}
 
     // --- Artboard (8×8) ---
     const art = document.createElement("div");
@@ -1018,71 +1051,108 @@ const fill = AST_COLORS[pid] || "#9aa7b1";
         // 1) planeetan obj-ruutu on 'x' (ylivuoto)
         // 2) alla on jonkun MUUN palan base-ruutu (0-kerros)
         // 3) EI näytetä planeetan oman base-ruudun kohdalla (kiinnitys pysyy selkeänä)
-        {
-          // planeetan omat base-ruudut 6×6:ssa (kiinnitysalue)
-          const myBase0 = new Set(baseCells0.map(([r0,c0]) => r0 + "," + c0));
+// --- PLANEETAN VARJO naapurislotteihin (ei ruudukkoa) ---
+// --- HALO-VARJO: iso ympyrä planeetan ympärille, leikataan pois planeetan omasta 2×2-alueesta ---
+{
+  // 1) Selvitä base-alue (planeetan oma 2×2) käyttämällä "a"-soluja
+  const aCells = obj.filter(o => o.t === "a");
+  if(aCells.length){
+    const aMinR = Math.min(...aCells.map(o=>o.lr));
+    const aMaxR = Math.max(...aCells.map(o=>o.lr));
+    const aMinC = Math.min(...aCells.map(o=>o.lc));
+    const aMaxC = Math.max(...aCells.map(o=>o.lc));
 
-          // planeetan x-ruutujen 6×6-koordinaatit (vain 6×6 sisällä ja ei omaan baseen)
-          const myX0 = [];
-          for(const oc of obj){
-            if(oc.t !== "x") continue;
-            const r0 = oc.r1 - L1_OFF;
-            const c0 = oc.c1 - L1_OFF;
-            if(r0<0 || c0<0 || r0>=N0 || c0>=N0) continue;
-            if(myBase0.has(r0 + "," + c0)) continue; // ei omaan kiinnitysalueeseen
-            myX0.push({ r0, c0, lr: oc.lr, lc: oc.lc });
-          }
+    const baseX = aMinC * STEP;
+    const baseY = aMinR * STEP;
+    const baseW = (aMaxC - aMinC + 1) * CELL + (aMaxC - aMinC) * GAP;
+    const baseH = (aMaxR - aMinR + 1) * CELL + (aMaxR - aMinR) * GAP;
 
-          if(myX0.length){
-            // kaikkien muiden palojen base-ruudut 6×6:ssa
-            const otherBase0 = new Set();
-            for(const [opid, op] of state.pieces.entries()){
-              if(opid === pid) continue;
-              const { baseCells0: ob0 } = getPieceCells(opid, op.slotR, op.slotC, op.rot);
-              for(const [r0,c0] of ob0){
-                if(r0<0 || c0<0 || r0>=N0 || c0>=N0) continue;
-                otherBase0.add(r0 + "," + c0);
-              }
-            }
+    // 2) Kerää X-ruudut, jotka osuvat naapurin baseen (kuten ennenkin)
+    const myBase0 = new Set(baseCells0.map(([r0,c0]) => r0 + "," + c0));
 
-            // vain ne x-ruudut, joiden alla on jokin muu pala
-            const showCells = myX0.filter(x => otherBase0.has(x.r0 + "," + x.c0));
+    const myX0 = [];
+    for(const oc of obj){
+      if(oc.t !== "x") continue;
+      const r0 = oc.r1 - L1_OFF;
+      const c0 = oc.c1 - L1_OFF;
+      if(r0<0 || c0<0 || r0>=N0 || c0>=N0) continue;
+      if(myBase0.has(r0 + "," + c0)) continue; // ei oma base
+      myX0.push({ r0, c0, lr: oc.lr, lc: oc.lc });
+    }
 
-            if(showCells.length){
-              const clipId = `clip_nb_${pid}_${slotR}_${slotC}_${rot}`;
-              const defs = svgEl("defs");
-              const clip = svgEl("clipPath", { id: clipId });
-
-              for(const sc of showCells){
-                const rc = rectForL1CellLocal(sc.lr, sc.lc); // <- lisäät apufunktion itse
-                clip.appendChild(svgEl("rect", {
-                  x: rc.x, y: rc.y, width: rc.w, height: rc.h
-                }));
-              }
-
-              defs.appendChild(clip);
-              svg.appendChild(defs);
-
-              const g = svgEl("g", { "clip-path": `url(#${clipId})` });
-
-              for(const sc of showCells){
-                const rc = rectForL1CellLocal(sc.lr, sc.lc);
-                g.appendChild(svgEl("rect", {
-                  x: rc.x + 0.5,
-                  y: rc.y + 0.5,
-                  width: rc.w - 1,
-                  height: rc.h - 1,
-                  rx: 10, ry: 10,
-                  fill: "none",
-                  stroke: "rgba(255,255,255,.22)",
-                  "stroke-width": 2
-                }));
-              }
-
-              svg.appendChild(g);
-            }
-          }
+    if(myX0.length){
+      const otherBase0 = new Set();
+      for(const [opid, op] of state.pieces.entries()){
+        if(opid === pid) continue;
+        const { baseCells0: ob0 } = getPieceCells(opid, op.slotR, op.slotC, op.rot);
+        for(const [r0,c0] of ob0){
+          if(r0<0 || c0<0 || r0>=N0 || c0>=N0) continue;
+          otherBase0.add(r0 + "," + c0);
         }
+      }
+
+      const showCells = myX0.filter(x => otherBase0.has(x.r0 + "," + x.c0));
+      if(showCells.length){
+
+        // 3) Tee defs: blur + clipPath (naapurisolut) + mask (leikataan base-alue pois)
+        const clipId = `clipHalo_${pid}_${slotR}_${slotC}_${rot}`;
+        const maskId = `maskHalo_${pid}_${slotR}_${slotC}_${rot}`;
+        const blurId = `blurHalo_${pid}_${slotR}_${slotC}_${rot}`;
+
+        const defs = svgEl("defs");
+
+        // blur
+        const flt = svgEl("filter", { id: blurId, x:"-30%", y:"-30%", width:"160%", height:"160%" });
+        flt.appendChild(svgEl("feGaussianBlur", { in:"SourceGraphic", stdDeviation:"1" }));
+        defs.appendChild(flt);
+
+        // clipPath: vain ne naapurisolut joihin varjo saa näkyä
+        const clip = svgEl("clipPath", { id: clipId });
+        for(const sc of showCells){
+          const rc = rectForL1CellLocal(sc.lr, sc.lc);
+          clip.appendChild(svgEl("rect", {
+            // laajenna hiukan, jotta gap-saumat eivät “vuoda”
+            x: rc.x - (GAP/2),
+            y: rc.y - (GAP/2),
+            width: rc.w + GAP,
+            height: rc.h + GAP,
+            rx: 10, ry: 10
+          }));
+        }
+        defs.appendChild(clip);
+
+        // mask: valkoinen = näkyy, musta = leikataan pois (planeetan oma base-alue)
+        const m = svgEl("mask", { id: maskId });
+        m.appendChild(svgEl("rect", { x:0, y:0, width: (L1*CELL + (L1-1)*GAP), height:(L1*CELL + (L1-1)*GAP), fill:"white" }));
+        m.appendChild(svgEl("rect", {
+          x: baseX - (GAP/2),
+          y: baseY - (GAP/2),
+          width: baseW + GAP,
+          height: baseH + GAP,
+          rx: 14, ry: 14,
+          fill: "black"
+        }));
+        defs.appendChild(m);
+
+        svg.appendChild(defs);
+
+        // 4) Piirrä yksi halo-ympyrä planeetan ympärille, mutta:
+        //    - clipataan vain naapurisoluihin (clip-path)
+        //    - maskataan pois planeetan oma base-alue (mask)
+        svg.appendChild(svgEl("circle", {
+          cx, cy,
+          r: r * 1.2,                    // halon koko (säädä 1.2–1.6)
+          fill: "rgba(255,255,255,.20)",  // halon voimakkuus
+          filter: `url(#${blurId})`,
+          "clip-path": `url(#${clipId})`,
+          mask: `url(#${maskId})`
+        }));
+      }
+    }
+  }
+}
+
+
       }
 
     } else if(pid === 1){
@@ -1163,14 +1233,14 @@ const fill = AST_COLORS[pid] || "#9aa7b1";
         g.appendChild(svgEl("line", {
           x1: cx - engDx, y1: engY1,
           x2: cx - engDx, y2: engY2,
-          stroke: "rgba(255,255,255,.85)",
+          stroke: "rgba(255,0,0,.85)",
           "stroke-width": 6,
           "stroke-linecap": "round"
         }));
         g.appendChild(svgEl("line", {
           x1: cx + engDx, y1: engY1,
           x2: cx + engDx, y2: engY2,
-          stroke: "rgba(255,255,255,.85)",
+          stroke: "rgba(255,0,0,.85)",
           "stroke-width": 6,
           "stroke-linecap": "round"
         }));
@@ -1202,8 +1272,8 @@ const fill = AST_COLORS[pid] || "#9aa7b1";
       if(pair){
         const [L,R] = pair;
         const x = (Math.min(L.lc, R.lc)+1)*STEP - GAP/2;
-        const y1 = L.lr*STEP + 10;
-        const y2 = L.lr*STEP + CELL - 10;
+        const y1 = L.lr*STEP + 0;
+        const y2 = L.lr*STEP + CELL - 25;
 
         svg.appendChild(svgEl("line", {
           x1: x, y1: y1,
@@ -1226,8 +1296,13 @@ const fill = AST_COLORS[pid] || "#9aa7b1";
 
     boardEl.appendChild(pieceEl);
   }
+// Korosta tyhjä slot taustassa (3×3 slotGrid)
+const slots = gridEl.querySelectorAll(".slot");
+slots.forEach(s => s.classList.remove("emptySlot"));
+const emptyIdx = state.empty.slotR * 3 + state.empty.slotC; // 0..8
+if(slots[emptyIdx]) slots[emptyIdx].classList.add("emptySlot");
 
-  setStatus(shipAtExit() ? "Avaruusalus aukolla: EXIT käytettävissä." : "");
+  setStatus(shipAtExit() ? "Reitti vapaa: EXIT käytettävissä." : "");
   const gate = document.querySelector(".exitGate");
 if(shipAtExit()){
   gate.classList.remove("disabled");

@@ -302,11 +302,17 @@ for(let rr=0; rr<h; rr++){
 
   /* 3) koska board skaalautuu, pienennä sen vaikutus wrapperin layoutissa */
   .wrap{ justify-items: center; }
+    #status{
+    margin-top: -42px;
+  }
 }
 
 /* Pienimmät iPhonet (SE tms.): vielä vähän lisää skaalausta */
 @media (max-width: 360px) and (orientation: portrait) and (hover: none) and (pointer: coarse){
   .board{ transform: scale(.76); }
+    #status{
+    margin-top: -42px;
+  }
 }
 
 

@@ -288,6 +288,28 @@ for(let rr=0; rr<h; rr++){
   ...
 }
 
+/* iPhone pysty: estä sivuttaisvieritys rikkomatta muuta */
+@media (max-width: 430px) and (orientation: portrait) and (hover: none) and (pointer: coarse){
+
+  /* 1) estä sivuttaisscroll */
+  html, body{ overflow-x: hidden; }
+
+  /* 2) skaalaa vain pelilauta niin, että myös 1-ruudun “ylivuoto” mahtuu ruudulle */
+  .board{
+    transform-origin: center top;
+    transform: scale(.88);
+  }
+
+  /* 3) koska board skaalautuu, pienennä sen vaikutus wrapperin layoutissa */
+  .wrap{ justify-items: center; }
+}
+
+/* Pienimmät iPhonet (SE tms.): vielä vähän lisää skaalausta */
+@media (max-width: 360px) and (orientation: portrait) and (hover: none) and (pointer: coarse){
+  .board{ transform: scale(.76); }
+}
+
+
 @media (orientation: landscape) and (min-width: 900px) {
 
   .board-wrapper{

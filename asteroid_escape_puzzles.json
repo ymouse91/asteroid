@@ -1837,6 +1837,1230 @@
           "rot": 3
         }
       ]
+    },
+    {
+      "name": "Master 37",
+      "emptySlot": 6,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 3,
+          "rot": 3
+        },
+        {
+          "slot": 2,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 3,
+          "pid": 2,
+          "rot": 1
+        },
+        {
+          "slot": 4,
+          "pid": 7,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 8,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 6,
+          "rot": 1
+        }
+      ]
+    },
+    {
+      "name": "Master 38",
+      "emptySlot": 2,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 8,
+          "rot": 3
+        },
+        {
+          "slot": 2,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 2,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 5,
+          "rot": 2
+        },
+        {
+          "slot": 5,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 6,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 3,
+          "rot": 1
+        },
+        {
+          "slot": 9,
+          "pid": 1,
+          "rot": 0
+        }
+      ]
+    },
+    {
+      "name": "Master 39",
+      "emptySlot": 3,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 2,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 3,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 8,
+          "pid": 8,
+          "rot": 3
+        },
+        {
+          "slot": 9,
+          "pid": 2,
+          "rot": 2
+        }
+      ]
+    },
+    {
+      "name": "Master 40",
+      "emptySlot": 3,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 7,
+          "rot": 1
+        },
+        {
+          "slot": 2,
+          "pid": 3,
+          "rot": 3
+        },
+        {
+          "slot": 3,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 5,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 6,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 8,
+          "rot": 3
+        },
+        {
+          "slot": 8,
+          "pid": 6,
+          "rot": 2
+        },
+        {
+          "slot": 9,
+          "pid": 2,
+          "rot": 2
+        }
+      ]
+    },
+    {
+      "name": "Master 41",
+      "emptySlot": 2,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 5,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 6,
+          "pid": 7,
+          "rot": 2
+        },
+        {
+          "slot": 7,
+          "pid": 2,
+          "rot": 3
+        },
+        {
+          "slot": 8,
+          "pid": 4,
+          "rot": 1
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 1
+        }
+      ]
+    },
+    {
+      "name": "Master 42",
+      "emptySlot": 5,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 2,
+          "rot": 3
+        },
+        {
+          "slot": 2,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 5,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 7,
+          "pid": 6,
+          "rot": 2
+        },
+        {
+          "slot": 8,
+          "pid": 7,
+          "rot": 2
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 2
+        }
+      ]
+    },
+    {
+      "name": "Master 43",
+      "emptySlot": 1,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 2,
+          "rot": 1
+        },
+        {
+          "slot": 3,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 4,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 5,
+          "pid": 6,
+          "rot": 2
+        },
+        {
+          "slot": 6,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 7,
+          "pid": 7,
+          "rot": 3
+        },
+        {
+          "slot": 8,
+          "pid": 3,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 4,
+          "rot": 1
+        }
+      ]
+    },
+    {
+      "name": "Master 44",
+      "emptySlot": 6,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 3,
+          "rot": 1
+        },
+        {
+          "slot": 2,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 4,
+          "rot": 1
+        },
+        {
+          "slot": 4,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 5,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 2,
+          "rot": 3
+        },
+        {
+          "slot": 8,
+          "pid": 7,
+          "rot": 3
+        },
+        {
+          "slot": 9,
+          "pid": 6,
+          "rot": 3
+        }
+      ]
+    },
+    {
+      "name": "Master 45",
+      "emptySlot": 3,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 6,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 4,
+          "rot": 2
+        },
+        {
+          "slot": 5,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 2,
+          "rot": 1
+        },
+        {
+          "slot": 7,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 3,
+          "rot": 1
+        },
+        {
+          "slot": 9,
+          "pid": 5,
+          "rot": 1
+        }
+      ]
+    },
+    {
+      "name": "Master 46",
+      "emptySlot": 5,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 2,
+          "rot": 3
+        },
+        {
+          "slot": 2,
+          "pid": 5,
+          "rot": 2
+        },
+        {
+          "slot": 3,
+          "pid": 4,
+          "rot": 3
+        },
+        {
+          "slot": 4,
+          "pid": 8,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 6,
+          "rot": 2
+        },
+        {
+          "slot": 7,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 1
+        }
+      ]
+    },
+    {
+      "name": "Master 47",
+      "emptySlot": 4,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 4,
+          "rot": 1
+        },
+        {
+          "slot": 2,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 4,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 5,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 6,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 3,
+          "rot": 2
+        },
+        {
+          "slot": 8,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 9,
+          "pid": 2,
+          "rot": 1
+        }
+      ]
+    },
+    {
+      "name": "Master 48",
+      "emptySlot": 1,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 4,
+          "rot": 1
+        },
+        {
+          "slot": 3,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 5,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 2,
+          "rot": 1
+        },
+        {
+          "slot": 7,
+          "pid": 3,
+          "rot": 1
+        },
+        {
+          "slot": 8,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 9,
+          "pid": 5,
+          "rot": 3
+        }
+      ]
+    },
+    {
+      "name": "Wizard 49",
+      "emptySlot": 3,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 7,
+          "rot": 1
+        },
+        {
+          "slot": 2,
+          "pid": 4,
+          "rot": 2
+        },
+        {
+          "slot": 3,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 8,
+          "rot": 1
+        },
+        {
+          "slot": 5,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 6,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 5,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 2,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 0
+        }
+      ]
+    },
+    {
+      "name": "Wizard 50",
+      "emptySlot": 8,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 2,
+          "pid": 7,
+          "rot": 1
+        },
+        {
+          "slot": 3,
+          "pid": 4,
+          "rot": 2
+        },
+        {
+          "slot": 4,
+          "pid": 5,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 3,
+          "rot": 2
+        },
+        {
+          "slot": 6,
+          "pid": 6,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 2,
+          "rot": 2
+        },
+        {
+          "slot": 8,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 1,
+          "rot": 0
+        }
+      ]
+    },
+    {
+      "name": "Wizard 51",
+      "emptySlot": 8,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 2,
+          "pid": 4,
+          "rot": 1
+        },
+        {
+          "slot": 3,
+          "pid": 5,
+          "rot": 3
+        },
+        {
+          "slot": 4,
+          "pid": 3,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 2,
+          "rot": 2
+        },
+        {
+          "slot": 7,
+          "pid": 7,
+          "rot": 1
+        },
+        {
+          "slot": 8,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 6,
+          "rot": 1
+        }
+      ]
+    },
+    {
+      "name": "Wizard 52",
+      "emptySlot": 6,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 2,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 5,
+          "rot": 3
+        },
+        {
+          "slot": 3,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 5,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 7,
+          "rot": 2
+        },
+        {
+          "slot": 8,
+          "pid": 3,
+          "rot": 1
+        },
+        {
+          "slot": 9,
+          "pid": 6,
+          "rot": 3
+        }
+      ]
+    },
+    {
+      "name": "Wizard 53",
+      "emptySlot": 3,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 7,
+          "rot": 3
+        },
+        {
+          "slot": 2,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 5,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 6,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 7,
+          "pid": 5,
+          "rot": 2
+        },
+        {
+          "slot": 8,
+          "pid": 3,
+          "rot": 2
+        },
+        {
+          "slot": 9,
+          "pid": 2,
+          "rot": 0
+        }
+      ]
+    },
+    {
+      "name": "Wizard 54",
+      "emptySlot": 5,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 4,
+          "rot": 1
+        },
+        {
+          "slot": 2,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 4,
+          "pid": 2,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 5,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 0
+        }
+      ]
+    },
+    {
+      "name": "Wizard 55",
+      "emptySlot": 8,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 7,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 3,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 8,
+          "rot": 2
+        },
+        {
+          "slot": 5,
+          "pid": 5,
+          "rot": 2
+        },
+        {
+          "slot": 6,
+          "pid": 2,
+          "rot": 2
+        },
+        {
+          "slot": 7,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 2
+        }
+      ]
+    },
+    {
+      "name": "Pulma 56",
+      "emptySlot": 6,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 4,
+          "rot": 1
+        },
+        {
+          "slot": 2,
+          "pid": 5,
+          "rot": 2
+        },
+        {
+          "slot": 3,
+          "pid": 3,
+          "rot": 1
+        },
+        {
+          "slot": 4,
+          "pid": 6,
+          "rot": 2
+        },
+        {
+          "slot": 5,
+          "pid": 7,
+          "rot": 1
+        },
+        {
+          "slot": 6,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 2,
+          "rot": 2
+        },
+        {
+          "slot": 9,
+          "pid": 8,
+          "rot": 2
+        }
+      ]
+    },
+    {
+      "name": "Wizard 57",
+      "emptySlot": 7,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 5,
+          "rot": 2
+        },
+        {
+          "slot": 2,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 4,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 5,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 2,
+          "rot": 1
+        },
+        {
+          "slot": 7,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 8,
+          "pid": 7,
+          "rot": 1
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 3
+        }
+      ]
+    },
+    {
+      "name": "Wizard 58",
+      "emptySlot": 1,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 2,
+          "rot": 1
+        },
+        {
+          "slot": 4,
+          "pid": 7,
+          "rot": 1
+        },
+        {
+          "slot": 5,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 6,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 5,
+          "rot": 1
+        },
+        {
+          "slot": 8,
+          "pid": 8,
+          "rot": 1
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 3
+        }
+      ]
+    },
+    {
+      "name": "Wizard 59",
+      "emptySlot": 8,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 7,
+          "rot": 2
+        },
+        {
+          "slot": 2,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 6,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 4,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 5,
+          "rot": 2
+        },
+        {
+          "slot": 6,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 7,
+          "pid": 2,
+          "rot": 2
+        },
+        {
+          "slot": 8,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 3,
+          "rot": 3
+        }
+      ]
+    },
+    {
+      "name": "Wizard 60",
+      "emptySlot": 5,
+      "slots": [
+        {
+          "slot": 1,
+          "pid": 1,
+          "rot": 0
+        },
+        {
+          "slot": 2,
+          "pid": 8,
+          "rot": 0
+        },
+        {
+          "slot": 3,
+          "pid": 4,
+          "rot": 0
+        },
+        {
+          "slot": 4,
+          "pid": 5,
+          "rot": 3
+        },
+        {
+          "slot": 5,
+          "pid": 0,
+          "rot": 0
+        },
+        {
+          "slot": 6,
+          "pid": 6,
+          "rot": 3
+        },
+        {
+          "slot": 7,
+          "pid": 2,
+          "rot": 3
+        },
+        {
+          "slot": 8,
+          "pid": 3,
+          "rot": 0
+        },
+        {
+          "slot": 9,
+          "pid": 7,
+          "rot": 2
+        }
+      ]
     }
   ]
 }

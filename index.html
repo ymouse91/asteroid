@@ -56,7 +56,7 @@
     }
     .title h1{
       margin:0;
-      font-size: 18px;
+      font-size: 24px;
       letter-spacing:.2px;
     }
     .title small{opacity:.85}
@@ -336,7 +336,7 @@ for(let rr=0; rr<h; rr++){
   <div class="app">
     <div class="top">
       <div class="title">
-        <h1>Asteroid Escape</h1>
+        <h1 id="title">Asteroid Escape</h1>
         <small>Ohjaa avaruusalus alas turvaan asteroideilta.</small>
       </div>
       <div class="bar">
@@ -1433,6 +1433,38 @@ document.addEventListener("touchend", e => {
   boot();
   registerSW();
 })();
+</script>
+<!-- QR Koodi yms… -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+<style>
+  #qrOverlay{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.6);z-index:999;
+  }
+  #qrBox{
+    background:#fff;padding:16px 20px;border-radius:12px;text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
+  }
+  #qrBox canvas{width:180px;height:180px;}
+</style>
+
+<div id="qrOverlay">
+  <div id="qrBox">
+    <canvas id="qr"></canvas>
+    <p style="color:#000;">ymouse91.github.io/asteroid/</p>
+  </div>
+</div>
+
+<script>
+const qr=new QRious({
+  element:document.getElementById('qr'),
+  value:'https://ymouse91.github.io/asteroid/',
+  size:180
+});
+const overlay=document.getElementById('qrOverlay');
+document.getElementById('title').onclick=()=>overlay.style.display='flex';
+overlay.onclick=()=>overlay.style.display='none';
 </script>
 </body>
 </html>

@@ -251,7 +251,7 @@
       pointer-events:none;
     }
 
-    .status{ font-weight:900; color: var(--warn); min-height: 18px; text-align:center; }
+    .status{ font-weight:900; color: var(--warn); min-height: 18px; text-align:center; margin-top: 82px;}
     .ok{ color: var(--ok); }
 
     textarea{
@@ -287,6 +287,14 @@
   color: #ffcc66;
   border: 1px solid rgba(255,204,102,0.8);
 }
+
+.status .arrow {
+  font-size: 44px;   /* säädä: esim. 26–34px */
+  line-height: 1.1;
+  display: inline-block;
+  margin: 0 2px;
+}
+
   </style>
 </head>
 
@@ -317,26 +325,33 @@
 
       <div class="row">
         <button class="btn2" id="btnClear">Tyhjennä nykyinen</button>
-        <button class="btnGhost" id="btnSetEmpty">Valitse tyhjä</button>
+ 
+		<button id="btnCheckSolve" type="button">Tarkista ratkaisu</button>
+		       <button class="btnGhost" id="btnSetEmpty">Aseta tyhjä ruutu</button>
+
+        <div hidden>
         <button class="btnOk" id="btnExport">Export JSON</button>
         <button class="btn2" id="btnApply">Import JSON</button>
+		</div>
       </div>
 
       <div class="fileRow">
-        <button class="btnGhost" id="btnDownload">Tallenna .json</button>
-        <label class="btnGhost" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; padding:10px 12px; border-radius:12px;">
-          Lataa .json
-          <input id="fileIn" type="file" accept=".json,application/json" style="display:none;">
-        </label>
-      </div>
+
 
       <div class="label">Palat</div>
       <div class="palette" id="palette"></div>
-
+      <div hidden>
       <div class="label">Pulmatiedosto JSON</div>
       <textarea id="jsonBox" spellcheck="false"></textarea>
 
       <div class="status" id="status"></div>
+	  </div> 
+	          <button class="btnGhost" id="btnDownload">Tallenna .json</button>
+        <label class="btnGhost" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; padding:10px 12px; border-radius:12px; font-weight: 700">
+          Lataa .json
+          <input id="fileIn" type="file" accept=".json,application/json" style="display:none;">
+        </label>
+      </div>
     </div>
 
     <div class="card">
@@ -404,30 +419,57 @@
     8: { name:"Ast5", ascii:[ "oo", "aa" ]}
   };
 
-  function parseAscii(ascii){
-    const rows = ascii.slice();
-    const h = rows.length;
-    const w = Math.max(...rows.map(r=>r.length));
-    const grid = rows.map(r => (r + " ".repeat(w)).slice(0,w).split(""));
-    const base = [];
-    const obj = [];
-    const isEmpty = (ch) => (ch === "-" || ch === " ");
-    for(let r=0;r<h;r++){
-      for(let c=0;c<w;c++){
-        const ch = grid[r][c];
-        if(isEmpty(ch)) continue;
-        if(ch === "o" || ch === "a") base.push([r,c]);
-        if(ch === "a" || ch === "x") obj.push([r,c,ch]);
-      }
+const EMPTY_PID = 0;
+const SHIP_PID  = 1;
+
+
+
+function parseAscii(ascii){
+  const rows = ascii.slice();
+  const h = rows.length;
+  const w = Math.max(...rows.map(r => r.length));
+  const grid = rows.map(r => (r + " ".repeat(w)).slice(0, w).split(""));
+
+  const base = [];   // o/a
+  const obj  = [];   // a/x (+ haluttaessa myös o, mutta ei tarvitse)
+  const oo   = [];   // vain o (shipin nokkaeston “oo-väli”)
+
+  const isEmpty = (ch) => (ch === "-" || ch === " ");
+
+  for(let r=0; r<h; r++){
+    for(let c=0; c<w; c++){
+      const ch = grid[r][c];
+      if(isEmpty(ch)) continue;
+
+      // base (0-kerros): o ja a
+      if(ch === "o" || ch === "a") base.push([r,c]);
+
+      // shipin oo-ruudut erikseen
+      if(ch === "o") oo.push([r,c]);
+
+      // obj (1-kerros): a ja x
+      if(ch === "a" || ch === "x") obj.push([r,c,ch]);
     }
-    if(base.length === 0) throw new Error("ASCII-maskissa ei ole base-ruutuja (o/a).");
-    const minR = Math.min(...base.map(p=>p[0]));
-    const minC = Math.min(...base.map(p=>p[1]));
-    return {
-      relBase: base.map(([r,c])=>[r-minR, c-minC]),
-      relObj:  obj.map(([r,c,t])=>[r-minR, c-minC, t])
-    };
   }
+
+  if(base.length === 0){
+    throw new Error("ASCII-maskissa ei ole base-ruutuja (o/a).");
+  }
+
+  // normalisoi base-bounding-boxin ylävasempaan
+  let minR = Infinity, minC = Infinity;
+  for(const [r,c] of base){
+    if(r < minR) minR = r;
+    if(c < minC) minC = c;
+  }
+
+  return {
+    relBase: base.map(([r,c]) => [r-minR, c-minC]),
+    relObj:  obj.map(([r,c,t]) => [r-minR, c-minC, t]),
+    relOO:   oo.map(([r,c]) => [r-minR, c-minC]) // vain 'o'
+  };
+}
+
 
   // rotate around 2x2 base center (0.5,0.5), clockwise
   function rotCoordCW(r,c,rot){
@@ -458,8 +500,453 @@
       const bc = slotC*SLOT + cc;
       return [br + L1_OFF, bc + L1_OFF, t];
     });
-    return { baseCells0, objCells1 };
+
+    // 'o'-ruudut (shipin "-oo-" väli) layer1-koordinaatteina
+    const ooCells1 = (def.relOO || []).map(([r,c]) => {
+      const [rr,cc]=rotCoordCW(r,c,rot);
+      const br = slotR*SLOT + rr;
+      const bc = slotC*SLOT + cc;
+      return [br + L1_OFF, bc + L1_OFF];
+    });
+
+    return { baseCells0, objCells1, ooCells1 };
   }
+
+// =========================
+// Solver (nopea BFS) builderiin
+// =========================
+
+// HUOM: nämä vastaavat index.html:n logiikkaa :contentReference[oaicite:3]{index=3}
+
+
+
+
+function baseCellsInsideBoard(baseCells0){
+  return baseCells0.every(([r,c]) => (r>=0 && c>=0 && r<N0 && c<N0));
+}
+
+function shipAtSlot8_state(st){
+  const ship = st.pieces.get(1);
+  return !!ship && ship.slotR === 2 && ship.slotC === 1; // slot 8
+}
+
+
+
+// sama idea kuin index.html canShipExit() :contentReference[oaicite:4]{index=4}
+function canShipExit_state(st){
+  const ship = st.pieces.get(1);
+  if(!ship) return { ok:false, reason:"Avaruusalusta ei ole laudalla." };
+  if(!shipAtSlot8_state(st)) return { ok:false, reason:"Avaruusalus ei ole aukolla (slot 8)." };
+
+  // muiden palojen 1-kerroksen occupancy
+  const occ = new Set();
+  for(const [pid,p] of st.pieces.entries()){
+    if(pid===1) continue;
+    const { objCells1 } = getPieceCells(pid, p.slotR, p.slotC, p.rot);
+    for(const [r1,c1] of objCells1){
+      if(r1<0||c1<0||r1>=L1||c1>=L1) continue;
+      occ.add(r1+","+c1);
+    }
+  }
+
+  // aluksen obj-solut (laudan sisällä)
+  const { objCells1 } = getPieceCells(1, ship.slotR, ship.slotC, ship.rot);
+  const shipObj = objCells1.filter(([r1,c1]) => r1>=0 && c1>=0 && r1<L1 && c1<L1);
+  if(shipObj.length === 0) return { ok:false, reason:"Avaruusaluksella ei ole objekteja (outo tilanne)." };
+
+  const maxR = Math.max(...shipObj.map(x=>x[0]));
+  const edgeCells = shipObj.filter(([r1]) => r1 === maxR);
+
+  for(const [r1,c1] of edgeCells){
+    const nr = r1 + 1;
+    if(nr >= L1) continue; // ulos = ok
+    if(occ.has(nr+","+c1)){
+      return { ok:false, reason:"Este aluksen edessä estää siirron." };
+    }
+  }
+  return { ok:true };
+}
+
+function buildLayer1Occ_state(st, exceptPid=null, hypotheticalMove=null){
+  const occ = new Map(); // "r,c" -> pid
+  for(const [pid,p] of st.pieces.entries()){
+    if(pid===exceptPid) continue;
+    const { objCells1 } = getPieceCells(pid, p.slotR, p.slotC, p.rot);
+    for(const [r,c] of objCells1){
+      if(r<0||c<0||r>=L1||c>=L1) continue;
+      occ.set(r+","+c, pid);
+    }
+  }
+  if(hypotheticalMove){
+    const { pid, slotR, slotC, rot } = hypotheticalMove;
+    const { objCells1 } = getPieceCells(pid, slotR, slotC, rot);
+    for(const [r,c] of objCells1){
+      if(r<0||c<0||r>=L1||c>=L1) continue;
+      const k=r+","+c;
+      if(occ.has(k)) return { ok:false, clashWith: occ.get(k), where:k };
+      occ.set(k, pid);
+    }
+  }
+  return { ok:true };
+}
+
+function edgeKey(r1,c1,r2,c2){
+  // järjestetään avain deterministiseksi
+  if(r1<r2 || (r1===r2 && c1<=c2)) return `${r1},${c1}|${r2},${c2}`;
+  return `${r2},${c2}|${r1},${c1}`;
+}
+
+function getShipNoseBlockedEdges_state(st){
+  const ship = st.pieces.get(SHIP_PID);
+  if(!ship) return new Set();
+
+  const { ooCells1 } = getPieceCells(SHIP_PID, ship.slotR, ship.slotC, ship.rot);
+
+  // Shipissä on kaksi 'o' ruutua: "-oo-" (rotaation mukaan)
+  if(!ooCells1 || ooCells1.length !== 2) return new Set();
+
+  const [a,b] = ooCells1;
+  const edges = new Set();
+
+  // Nokka estää juuri näiden kahden 'o'-ruudun välisen reunan
+  edges.add(edgeKey(a[0],a[1],b[0],b[1]));
+  return edges;
+}
+
+function canSlide_state(st, pid){
+  const p = st.pieces.get(pid);
+  if(!p) return { ok:false, reason:"Palaa ei löydy." };
+
+  // pitää olla tyhjän vieressä (3x3-slot naapurisiirto)
+  const dr = st.empty.slotR - p.slotR;
+  const dc = st.empty.slotC - p.slotC;
+  if(Math.abs(dr)+Math.abs(dc) !== 1) return { ok:false, reason:"Ei tyhjän vieressä." };
+
+  const moveR = Math.sign(dr);
+  const moveC = Math.sign(dc);
+
+  const newSlotR = st.empty.slotR;
+  const newSlotC = st.empty.slotC;
+
+  // 0-kerros: pohja pysyy laudalla
+  const { baseCells0: newBase0 } = getPieceCells(pid, newSlotR, newSlotC, p.rot);
+  if(!baseCellsInsideBoard(newBase0)) return { ok:false, reason:"Pohja menisi ulos laudalta." };
+
+  // 1-kerros: kerää muiden palojen obj-ruudut (a/x) välivaihe-estoon
+  // HUOM: shipin 'o' ei ole obj:ssa, joten sitä ei tule tähän settiin.
+  const blockingObj = new Set();
+  const blockingHard = new Set(); // vain 'x' (planetat), ship ei lisää tähän mitään
+  for(const [opid,op] of st.pieces.entries()){
+    if(opid === pid) continue;
+
+    const { objCells1 } = getPieceCells(opid, op.slotR, op.slotC, op.rot);
+    for(const [r,c,t] of objCells1){
+      if(r>=0 && c>=0 && r<L1 && c<L1){
+        blockingObj.add(r + "," + c);
+        if(t === "x") blockingHard.add(r + "," + c);
+      }
+    }
+  }
+
+  // nykyisen palan obj (a/x)
+  const curCells = getPieceCells(pid, p.slotR, p.slotC, p.rot);
+  const curObj = curCells.objCells1;
+
+  // --- Shipin 2 kpl 'o' -ruutua (globaalissa koordinaatistossa) ---
+  // Näitä tarvitaan "xx ei saa olla oo:n päällä" ja "oo ei saa osua xx:ään kahdesti" -sääntöihin.
+  const ship = st.pieces.get(SHIP_PID) || null;
+  let shipOOSet = null;           // Set("r,c") (2 kpl)
+  let movingShipOO = null;        // Array<[r,c]> (kun pid===SHIP_PID)
+  if(ship){
+    // yritä saada oo-ruudut getPieceCells:stä; jos sinulla on fallback-apuri, käytä sitä
+    const shipCells = getPieceCells(SHIP_PID, ship.slotR, ship.slotC, ship.rot);
+    const oo =
+      shipCells.ooCells1 || shipCells.ooCells0 || shipCells.relOOCells1 || shipCells.relOOCells0 || null;
+
+    shipOOSet = new Set();
+    if(oo){
+      for(const [r,c] of oo){
+        shipOOSet.add(r + "," + c);
+      }
+    }else if(typeof getShipOOCells1_state === "function"){
+      const keys = getShipOOCells1_state(st); // ["r,c", ...] (2 kpl)
+      for(const k of keys) shipOOSet.add(k);
+    }else{
+      // jos oo-ruutuja ei saada, ei voida tehdä xx/oo -logiikkaa oikein
+      // -> turvallinen valinta: estä kaikki "x osuu ship-baseen" tapaukset (mutta tämä voi olla liian tiukka)
+      // Tässä kuitenkin jatketaan ilman shipOOSet:iä.
+      shipOOSet = null;
+    }
+
+    if(pid === SHIP_PID && shipOOSet){
+      // tee arrayksi nopeampaa iterointia varten
+      movingShipOO = [...shipOOSet].map(k => k.split(",").map(Number));
+    }
+  }
+
+  // --- Nokka-esto: oo–oo reunan ylitys (vain x-soluille) ---
+  const noseEdges = (pid !== SHIP_PID && ship) ? getShipNoseBlockedEdges_state(st) : new Set();
+
+  // --- Välivaiheet: step = 1..SLOT ---
+  for(let step=1; step<=SLOT; step++){
+
+    // (A) ✅ Kun EI-alus liikkuu: sen x-solut saavat osua shipin o:hon korkeintaan kerran / step
+    // (xx ei saa olla aluksen oo:n päällä)
+    if(pid !== SHIP_PID && shipOOSet){
+      let hits = 0;
+      for(const [r,c,t] of curObj){
+        if(t !== "x") continue;
+        const nr = r + moveR*step;
+        const nc = c + moveC*step;
+        if(shipOOSet.has(nr + "," + nc)){
+          hits++;
+          if(hits >= 2){
+            return { ok:false, reason:"Este! Planeetan xx ei saa olla aluksen oo:n päällä." };
+          }
+        }
+      }
+    }
+
+    // (B) ✅ Nose-edge: x ei saa ylittää oo–oo väliä
+    if(noseEdges && noseEdges.size){
+      for(const [r,c,t] of curObj){
+        if(t !== "x") continue;
+        const pr = r + moveR*(step-1);
+        const pc = c + moveC*(step-1);
+        const nr = r + moveR*step;
+        const nc = c + moveC*step;
+        if(noseEdges.has(edgeKey(pr,pc,nr,nc))){
+          return { ok:false, reason:"Este! Nokka estää (oo-väli)." };
+        }
+      }
+    }
+
+    // (C) Normaali välivaiheen törmäys muihin obj-ruutuihin (a/x)
+    for(const [r,c,_t] of curObj){
+      const nr = r + moveR*step;
+      const nc = c + moveC*step;
+      if(blockingObj.has(nr + "," + nc)){
+        return { ok:false, reason:"Este! Siirto estetty (välivaihe)." };
+      }
+    }
+
+    // (D) ✅ Kun ALUS liikkuu: sallitaan että YKSI sen o-ruutu osuu x:ään,
+    // mutta EI sallita, että MOLEMMAT o-ruudut osuvat x:ään samalla stepillä.
+    if(pid === SHIP_PID && movingShipOO){
+      let hits = 0;
+      for(const [or,oc] of movingShipOO){
+        const nr = or + moveR*step;
+        const nc = oc + moveC*step;
+        if(blockingHard.has(nr + "," + nc)){
+          hits++;
+          if(hits >= 2){
+            return { ok:false, reason:"Este! Aluksen oo ei saa osua planeetan xx:n päälle (2 osumaa)." };
+          }
+        }
+      }
+    }
+  }
+
+  // --- Lopputila: varmistukset ---
+  // (E) kun EI-alus liikkuu: varmistus xx vs oo (max 1 osuma)
+  if(pid !== SHIP_PID && shipOOSet){
+    const { objCells1: newObj } = getPieceCells(pid, newSlotR, newSlotC, p.rot);
+    let hits = 0;
+    for(const [r,c,t] of newObj){
+      if(t !== "x") continue;
+      if(shipOOSet.has(r + "," + c)){
+        hits++;
+        if(hits >= 2){
+          return { ok:false, reason:"Este! Planeetan xx ei saa olla aluksen oo:n päällä." };
+        }
+      }
+    }
+  }
+
+  // (F) kun ALUS liikkuu: varmistus oo vs xx (max 1 osuma)
+  if(pid === SHIP_PID && movingShipOO){
+    let hits = 0;
+    for(const [or,oc] of movingShipOO){
+      const nr = or + moveR*SLOT;
+      const nc = oc + moveC*SLOT;
+      if(blockingHard.has(nr + "," + nc)){
+        hits++;
+        if(hits >= 2){
+          return { ok:false, reason:"Este! Aluksen oo ei saa päätyä planeetan xx:n päälle (2 osumaa)." };
+        }
+      }
+    }
+  }
+
+  // 1-kerros: lopullinen päällekkäisyys (obj-ruudut)
+  const occRes = buildLayer1Occ_state(st, pid, { pid, slotR:newSlotR, slotC:newSlotC, rot:p.rot });
+  if(!occRes.ok) return { ok:false, reason:"Este! Siirto estetty (päällekkäisyys)." };
+
+  return { ok:true, newSlotR, newSlotC };
+}
+
+
+function cloneState(st){
+  const pieces = new Map();
+  for(const [pid,p] of st.pieces.entries()){
+    pieces.set(pid, { slotR:p.slotR, slotC:p.slotC, rot:p.rot });
+  }
+  return { pieces, empty: {slotR: st.empty.slotR, slotC: st.empty.slotC} };
+}
+
+function stateKey(st){
+  // avain: empty + jokaisen pid:n sijainti/rot (pid 1..8)
+  let key = `E${st.empty.slotR}${st.empty.slotC}|`;
+  for(let pid=1; pid<=8; pid++){
+    const p = st.pieces.get(pid);
+    if(!p) key += `${pid}:--|`;
+    else key += `${pid}:${p.slotR}${p.slotC}${p.rot}|`;
+  }
+  return key;
+}
+
+function buildStateFromBuilder(slotData, emptySlot){
+  const st = { pieces: new Map(), empty: {slotR:0, slotC:0} };
+
+  // empty
+  const [er, ec] = slotToRC(emptySlot);
+  st.empty = { slotR: er, slotC: ec };
+
+  // pieces
+  for(let s=1;s<=9;s++){
+    if(s === emptySlot) continue;
+    const info = slotData[s];
+    if(!info) continue;
+    const [sr, sc] = slotToRC(s);
+    const pid = info.pid|0;
+    const rot = (pid===1) ? 0 : ((info.rot|0)&3);
+    st.pieces.set(pid, { slotR: sr, slotC: sc, rot });
+  }
+
+  return st;
+}
+
+// Palauttaa {ok, moves, reason, stats}
+function solvePuzzleBFS_fromBuilder(slotData, emptySlot, opts={}){
+  const maxNodes = opts.maxNodes ?? 400000; // nosta tarvittaessa
+  const maxDepth = opts.maxDepth ?? 200;
+
+  const start = buildStateFromBuilder(slotData, emptySlot);
+
+  // nopea voitto-check
+  if(canShipExit_state(start).ok){
+    return { ok:true, moves: [], stats:{nodes:0, depth:0}, reason:"Jo valmiiksi EXIT." };
+  }
+
+  const seen = new Set();
+  const parent = new Map(); // key -> {prevKey, pidMoved}
+  const q = [];             // käytetään head-indeksiä (EI shift)
+  let head = 0;
+
+  const k0 = stateKey(start);
+  seen.add(k0);
+  q.push({ st:start, key:k0, depth:0 });
+
+  let nodes = 0;
+
+  while(head < q.length){
+    const cur = q[head++];
+    nodes++;
+
+    if(nodes > maxNodes){
+      return { ok:false, moves:null, reason:`Raja tuli vastaan (maxNodes=${maxNodes}).`, stats:{nodes, depth:cur.depth} };
+    }
+    if(cur.depth >= maxDepth) continue;
+
+    // generoi kaikki lailliset siirrot: mikä tahansa pala, joka voi liukua tyhjään
+    for(let pid=1; pid<=8; pid++){
+      if(!cur.st.pieces.get(pid)) continue;
+
+      const res = canSlide_state(cur.st, pid);
+      if(!res.ok) continue;
+
+      const nxt = cloneState(cur.st);
+      const p = nxt.pieces.get(pid);
+
+      // move piece into empty
+      const old = { slotR:p.slotR, slotC:p.slotC };
+      p.slotR = res.newSlotR;
+      p.slotC = res.newSlotC;
+
+      // empty becomes old slot of that piece
+      nxt.empty = { slotR: old.slotR, slotC: old.slotC };
+
+      const k = stateKey(nxt);
+      if(seen.has(k)) continue;
+
+      seen.add(k);
+      parent.set(k, { prevKey: cur.key, pidMoved: pid });
+
+      // goal?
+      if(canShipExit_state(nxt).ok){
+        // reconstruct moves
+        const moves = [];
+        let kk = k;
+        while(kk !== k0){
+          const par = parent.get(kk);
+          moves.push(par.pidMoved);
+          kk = par.prevKey;
+        }
+        moves.reverse();
+        return { ok:true, moves, reason:"Ratkaisu löytyi.", stats:{nodes, depth:cur.depth+1} };
+      }
+
+      q.push({ st:nxt, key:k, depth:cur.depth+1 });
+    }
+  }
+
+  return { ok:false, moves:null, reason:"Ratkaisua ei löytynyt (BFS loppui).", stats:{nodes, depth:null} };
+}
+
+function solver_movesToArrows(slotData, emptySlot, pidMoves){
+  const st = (function(){
+    const pieces = new Map();
+    const [er,ec] = slotToRC(emptySlot);
+    for(let s=1;s<=9;s++){
+      if(s===emptySlot) continue;
+      const it = slotData[s];
+      if(!it) continue;
+      const [sr,sc] = slotToRC(s);
+      pieces.set(it.pid|0, { slotR: sr, slotC: sc, rot: (it.rot|0)&3 });
+    }
+    return { pieces, empty:{slotR:er, slotC:ec} };
+  })();
+
+  const arrows = [];
+  for(const pid of pidMoves){
+    const p = st.pieces.get(pid);
+    if(!p){
+      arrows.push({ txt:"?", ship:false });
+      continue;
+    }
+
+    const dr = st.empty.slotR - p.slotR;
+    const dc = st.empty.slotC - p.slotC;
+
+    let a = "?";
+    if(dr === -1 && dc === 0) a = "↑";
+    else if(dr === 1 && dc === 0) a = "↓";
+    else if(dr === 0 && dc === -1) a = "←";
+    else if(dr === 0 && dc === 1) a = "→";
+
+    arrows.push({
+      txt: a,
+      ship: (pid === 1)   // ⭐ avaruusalus
+    });
+
+    // simuloi siirto
+    const old = { slotR:p.slotR, slotC:p.slotC };
+    p.slotR = st.empty.slotR;
+    p.slotC = st.empty.slotC;
+    st.empty = old;
+  }
+  return arrows;
+}
 
   // --- multi-puzzle storage ---
   const DEFAULT_PUZZLE = () => ({
@@ -1105,6 +1592,14 @@ function svgThumb(pid, rot){
     setStatus("Import onnistui.", true);
   }
 
+function setStatusHTML(html="", ok=false){
+  const t = html ? `${dateFi} – ${html}` : `${dateFi}`;
+  statusEl.innerHTML = t;
+  status2El.innerHTML = t;
+  statusEl.className = "status" + (ok ? " ok" : "");
+  status2El.className = "status" + (ok ? " ok" : "");
+}
+
   // --- buttons wiring ---
   document.getElementById("btnPrev").addEventListener("click", () => loadPuzzle(cur-1));
   document.getElementById("btnNext").addEventListener("click", () => loadPuzzle(cur+1));
@@ -1148,6 +1643,32 @@ function svgThumb(pid, rot){
     }
   });
 
+document.getElementById("btnCheckSolve").addEventListener("click", ()=>{
+  const res = solvePuzzleBFS_fromBuilder(slotData, emptySlot, {
+    maxNodes: 800000,
+    maxDepth: 250
+  });
+
+  if(!res.ok){
+    setStatus(`EI: ${res.reason} (nodes ${res.stats.nodes})`, false);
+    return;
+  }
+
+const arr = solver_movesToArrows(slotData, emptySlot, res.moves);
+
+const arrows = arr.map(a =>
+  a.ship
+    ? `<span class="arrow" style="color:#fff;font-weight:700">${a.txt}</span>`
+    : `<span class="arrow" style="color:#9ad">${a.txt}</span>`
+).join(" ");
+
+// TÄMÄ on tärkeä: HTML-version kautta, muuten tagit näkyvät
+setStatusHTML(`${res.moves.length} siirtoa: ${arrows}`, true);
+
+});
+
+
+
   document.getElementById("btnDownload").addEventListener("click", () => {
     saveCurrent();
     exportAllToTextarea();
@@ -1175,6 +1696,8 @@ function svgThumb(pid, rot){
     }
     e.target.value = "";
   });
+  
+  
 
   // --- init ---
   buildSlotOverlay();

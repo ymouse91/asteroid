@@ -385,6 +385,42 @@ for(let rr=0; rr<h; rr++){
   const L1_OFF = 1;             // base (0..5) -> obj (1..6)
   const SLOT = 2;
 
+const SHIP_PID = 1;
+
+function edgeKey(r1,c1,r2,c2){
+  // Order-independent edge id
+  const a = r1 + "," + c1;
+  const b = r2 + "," + c2;
+  return (a < b) ? (a + "|" + b) : (b + "|" + a);
+}
+
+function getShipNoseBlockedEdges_state(st){
+  const ship = st.pieces.get(SHIP_PID);
+  if(!ship) return new Set();
+
+  const { ooCells1 } = getPieceCells(SHIP_PID, ship.slotR, ship.slotC, ship.rot);
+  if(!ooCells1 || ooCells1.length < 2) return new Set();
+
+  // Find the adjacent oo–oo pair (there should be exactly one)
+  let A=null, B=null;
+  for(let i=0;i<ooCells1.length;i++){
+    for(let j=i+1;j<ooCells1.length;j++){
+      const [r1,c1]=ooCells1[i];
+      const [r2,c2]=ooCells1[j];
+      if(Math.abs(r1-r2)+Math.abs(c1-c2)===1){
+        A=[r1,c1]; B=[r2,c2];
+        break;
+      }
+    }
+    if(A) break;
+  }
+  if(!A) return new Set();
+
+  const s = new Set();
+  s.add(edgeKey(A[0],A[1],B[0],B[1]));
+  return s;
+}
+
   const boardEl = document.getElementById("board");
   const gridEl = document.getElementById("grid");
 
@@ -440,6 +476,8 @@ for(let rr=0; rr<h; rr++){
 
     const base = [];
     const obj = [];
+    const oo  = []; // base-only cells marked 'o' (needed for ship "oo")
+
     const isEmpty = (ch) => (ch === "-" || ch === " ");
 
     for(let r=0;r<h;r++){
@@ -448,6 +486,7 @@ for(let rr=0; rr<h; rr++){
         if(isEmpty(ch)) continue;
         if(ch === "o" || ch === "a") base.push([r,c]);
         if(ch === "a" || ch === "x") obj.push([r,c,ch]);
+        if(ch === "o") oo.push([r,c]);
       }
     }
     if(base.length === 0) throw new Error("ASCII-maskissa ei ole yhtään base-ruutua (o/a).");
@@ -456,8 +495,9 @@ for(let rr=0; rr<h; rr++){
     const minC = Math.min(...base.map(p=>p[1]));
     const relBase = base.map(([r,c])=>[r-minR, c-minC]);
     const relObj  = obj.map(([r,c,t])=>[r-minR, c-minC, t]);
+    const relOO   = oo.map(([r,c])=>[r-minR, c-minC]);
 
-    return { relBase, relObj };
+    return { relBase, relObj, relOO };
   }
 
   const parsedDefs = {};
@@ -494,7 +534,15 @@ for(let rr=0; rr<h; rr++){
       return [br + L1_OFF, bc + L1_OFF, t]; // 0..7 allowed due to overhang
     });
 
-    return { baseCells0, objCells1 };
+    // base-only 'o' cells in 1-layer coords (needed for ship "oo")
+    const ooCells1 = (def.relOO || []).map(([r,c]) => {
+      const [rr,cc]=rotCoordCW(r,c,rot);
+      const br = slotR*SLOT + rr;
+      const bc = slotC*SLOT + cc;
+      return [br + L1_OFF, bc + L1_OFF];
+    });
+
+    return { baseCells0, objCells1, ooCells1 };
   }
 
   // --- Puzzle #2 ---
@@ -781,23 +829,46 @@ let state;
     }
     return { ok:true };
   }
+// Builder-yhteensopiva: occupancy tarkistus annetulle tilalle
+function buildLayer1Occ_state(st, exceptPid=null, hypotheticalMove=null){
+  const occ = new Map(); // "r,c" -> pid
+  for(const [pid,p] of st.pieces.entries()){
+    if(pid===exceptPid) continue;
+    const { objCells1 } = getPieceCells(pid, p.slotR, p.slotC, p.rot);
+    for(const [r,c] of objCells1){
+      if(r<0||c<0||r>=L1||c>=L1) continue;
+      occ.set(r+","+c, pid);
+    }
+  }
+  if(hypotheticalMove){
+    const { pid, slotR, slotC, rot } = hypotheticalMove;
+    const { objCells1 } = getPieceCells(pid, slotR, slotC, rot);
+    for(const [r,c] of objCells1){
+      if(r<0||c<0||r>=L1||c>=L1) continue;
+      const k=r+","+c;
+      if(occ.has(k)) return { ok:false, clashWith: occ.get(k), where:k };
+      occ.set(k, pid);
+    }
+  }
+  return { ok:true };
+}
+
 
   function baseCellsInsideBoard(baseCells0){
     return baseCells0.every(([r,c]) => (r>=0 && c>=0 && r<N0 && c<N0));
   }
 
 function canSlide(pid){
-  if(state.removedShip && pid===1)
-    return {ok:false, reason:"Avaruusalus on jo poistunut."};
+  if(state.removedShip && pid===SHIP_PID)
+    return { ok:false, reason:"Avaruusalus on jo poistunut." };
 
   const p = state.pieces.get(pid);
-  if(!p) return {ok:false, reason:"Palaa ei löydy."};
+  if(!p) return { ok:false, reason:"Palaa ei löydy." };
 
-  // onko tyhjän vieressä (3×3-slot naapurisiirto)
+  // pitää olla tyhjän vieressä (3x3-slot naapurisiirto)
   const dr = state.empty.slotR - p.slotR;
   const dc = state.empty.slotC - p.slotC;
-  if(Math.abs(dr)+Math.abs(dc) !== 1)
-    return {ok:false, reason:"Ei tyhjän vieressä."};
+  if(Math.abs(dr)+Math.abs(dc) !== 1) return { ok:false, reason:"Ei tyhjän vieressä." };
 
   const moveR = Math.sign(dr);
   const moveC = Math.sign(dc);
@@ -805,62 +876,151 @@ function canSlide(pid){
   const newSlotR = state.empty.slotR;
   const newSlotC = state.empty.slotC;
 
-  // --- 0-kerros: pohjan pitää pysyä laudalla ---
-  const { baseCells0: newBase0 } =
-    getPieceCells(pid, newSlotR, newSlotC, p.rot);
+  // 0-kerros: pohja pysyy laudalla
+  const { baseCells0: newBase0 } = getPieceCells(pid, newSlotR, newSlotC, p.rot);
+  if(!baseCellsInsideBoard(newBase0)) return { ok:false, reason:"Pohja menisi ulos laudalta." };
 
-  if(!baseCellsInsideBoard(newBase0))
-    return {ok:false, reason:"Pohja menisi ulos laudalta."};
-
-  // --- 1-kerros: ESTÄ LÄPIKULKU (välivaiheet) ---
-  // Slot-siirto = SLOT ruutua (SLOT=2) 6×6/L1-koordinaateissa.
-  // Tarkistetaan step=1..SLOT myös x:ää vasten (ei vain a:ta).
-  const { objCells1: curObj } =
-    getPieceCells(pid, p.slotR, p.slotC, p.rot);
-
-  // kerää muiden palojen kaikki obj-ruudut (a + x) blokkijoukoksi
-  const blockingObj = new Set();
+  // 1-kerros: kerää muiden palojen obj-ruudut (a/x) välivaihe-estoon
+  // HUOM: shipin 'o' ei ole obj:ssa, joten sitä ei tule tähän settiin.
+  const blockingObj  = new Set();
+  const blockingHard = new Set(); // vain 'x' (planetat), ship ei lisää tähän mitään
   for(const [opid,op] of state.pieces.entries()){
     if(opid === pid) continue;
-    const { objCells1 } =
-      getPieceCells(opid, op.slotR, op.slotC, op.rot);
+
+    const { objCells1 } = getPieceCells(opid, op.slotR, op.slotC, op.rot);
     for(const [r,c,t] of objCells1){
-      // t on "a" tai "x" (parseAscii lisää obj:hin vain a/x)
       if(r>=0 && c>=0 && r<L1 && c<L1){
         blockingObj.add(r + "," + c);
+        if(t === "x") blockingHard.add(r + "," + c);
       }
     }
   }
 
-  // tarkista koko liikerata: step=1..SLOT (SLOT=2)
-  for(const [r,c] of curObj){
-    for(let step=1; step<=SLOT; step++){
+  // nykyisen palan obj (a/x)
+  const curCells = getPieceCells(pid, p.slotR, p.slotC, p.rot);
+  const curObj = curCells.objCells1;
+
+  // --- Shipin 2 kpl 'o' -ruutua (globaalissa koordinaatistossa) ---
+  const ship = state.pieces.get(SHIP_PID) || null;
+  let shipOOSet = null;           // Set("r,c") (2 kpl)
+  let movingShipOO = null;        // Array<[r,c]> (kun pid===SHIP_PID)
+  if(ship){
+    const shipCells = getPieceCells(SHIP_PID, ship.slotR, ship.slotC, ship.rot);
+    const oo = shipCells.ooCells1 || null;
+
+    shipOOSet = new Set();
+    if(oo && oo.length){
+      for(const [r,c] of oo) shipOOSet.add(r + "," + c);
+    }else{
+      shipOOSet = null; // ei saatu oo-ruutuja -> ohitetaan oo-säännöt
+    }
+
+    if(pid === SHIP_PID && shipOOSet){
+      movingShipOO = [...shipOOSet].map(k => k.split(",").map(Number));
+    }
+  }
+
+  // --- Nokka-esto: oo–oo reunan ylitys (vain x-soluille) ---
+  const noseEdges = (pid !== SHIP_PID && ship) ? getShipNoseBlockedEdges_state(state) : new Set();
+
+  // --- Välivaiheet: step = 1..SLOT ---
+  for(let step=1; step<=SLOT; step++){
+
+    // (A) Kun EI-alus liikkuu: sen x-solut saavat osua shipin o:hon korkeintaan kerran / step
+    // (xx ei saa olla aluksen oo:n päällä)
+    if(pid !== SHIP_PID && shipOOSet){
+      let hits = 0;
+      for(const [r,c,t] of curObj){
+        if(t !== "x") continue;
+        const nr = r + moveR*step;
+        const nc = c + moveC*step;
+        if(shipOOSet.has(nr + "," + nc)){
+          hits++;
+          if(hits >= 2){
+            return { ok:false, reason:"Este! Planeetta ei saa osua aluksen keulaan." };
+          }
+        }
+      }
+    }
+
+    // (B) Nose-edge: x ei saa ylittää oo–oo väliä
+    if(noseEdges && noseEdges.size){
+      for(const [r,c,t] of curObj){
+        if(t !== "x") continue;
+        const pr = r + moveR*(step-1);
+        const pc = c + moveC*(step-1);
+        const nr = r + moveR*step;
+        const nc = c + moveC*step;
+        if(noseEdges.has(edgeKey(pr,pc,nr,nc))){
+          return { ok:false, reason:"Este! Nokkaosuma." };
+        }
+      }
+    }
+
+    // (C) Normaali välivaiheen törmäys muihin obj-ruutuihin (a/x)
+    for(const [r,c,_t] of curObj){
       const nr = r + moveR*step;
       const nc = c + moveC*step;
       if(blockingObj.has(nr + "," + nc)){
-        return {
-          ok:false,
-          reason:"Este! Siirto estetty."
-        };
+        return { ok:false, reason:"Este! Siirto estetty (välivaihe)." };
+      }
+    }
+
+    // (D) Kun ALUS liikkuu: sallitaan että YKSI sen o-ruutu osuu x:ään,
+    // mutta EI sallita, että MOLEMMAT o-ruudut osuvat x:ään samalla stepillä.
+    if(pid === SHIP_PID && movingShipOO){
+      let hits = 0;
+      for(const [or,oc] of movingShipOO){
+        const nr = or + moveR*step;
+        const nc = oc + moveC*step;
+        if(blockingHard.has(nr + "," + nc)){
+          hits++;
+          if(hits >= 2){
+            return { ok:false, reason:"Este! Aluksen keula ei saa päätyä planeetan päälle." };
+          }
+        }
       }
     }
   }
 
-  // --- 1-kerros: lopullinen päällekkäisyys (vanha tarkistus) ---
-  const occRes = buildLayer1Occupancy(
-    pid,
-    { pid, slotR:newSlotR, slotC:newSlotC, rot:p.rot }
-  );
-
-  if(!occRes.ok){
-    return {
-      ok:false,
-      reason:`Este! Siirto estetty.`
-    };
+  // --- Lopputila: varmistukset ---
+  // (E) kun EI-alus liikkuu: varmistus xx vs oo (max 1 osuma)
+  if(pid !== SHIP_PID && shipOOSet){
+    const { objCells1: newObj } = getPieceCells(pid, newSlotR, newSlotC, p.rot);
+    let hits = 0;
+    for(const [r,c,t] of newObj){
+      if(t !== "x") continue;
+      if(shipOOSet.has(r + "," + c)){
+        hits++;
+        if(hits >= 2){
+          return { ok:false, reason:"Este! Planeetan keula ei saa osua planeettaan." };
+        }
+      }
+    }
   }
+
+  // (F) kun ALUS liikkuu: varmistus oo vs xx (max 1 osuma)
+  if(pid === SHIP_PID && movingShipOO){
+    let hits = 0;
+    for(const [or,oc] of movingShipOO){
+      const nr = or + moveR*SLOT;
+      const nc = oc + moveC*SLOT;
+      if(blockingHard.has(nr + "," + nc)){
+        hits++;
+        if(hits >= 2){
+          return { ok:false, reason:"Este! Aluksen keula ei saa päätyä planeetan päälle." };
+        }
+      }
+    }
+  }
+
+  // 1-kerros: lopullinen päällekkäisyys (obj-ruudut)
+  const occRes = buildLayer1Occ_state(state, pid, { pid, slotR:newSlotR, slotC:newSlotC, rot:p.rot });
+  if(!occRes.ok) return { ok:false, reason:"Este! Siirto estetty (osuma siipeen)." };
 
   return { ok:true, newSlotR, newSlotC };
 }
+
 
 
 
@@ -940,7 +1100,7 @@ function exitShip(){
   state.removedShip = true;
   render();
 
-  setStatus("Avaruusalus poistui. Seuraava pulma…");
+  setStatus("Avaruusalus pelastui. Seuraava pulma…");
 
   // pieni viive ennen seuraavaa pulmaa
   setTimeout(() => {

@@ -1374,135 +1374,57 @@ const fill = AST_COLORS[pid] || "#9aa7b1";
 
       }
 
-    } else if(pid === 1){
-      // Ship ... (kuten sinulla jo on)
-      if(obj.length){
-        const minR = Math.min(...obj.map(o=>o.lr));
-        const maxR = Math.max(...obj.map(o=>o.lr));
-        const minC = Math.min(...obj.map(o=>o.lc));
-        const maxC = Math.max(...obj.map(o=>o.lc));
+} else if(pid === 1){
+  // ====== SHIP: alus.png ======
+  if(obj.length){
+    const minR = Math.min(...obj.map(o=>o.lr));
+    const maxR = Math.max(...obj.map(o=>o.lr));
+    const minC = Math.min(...obj.map(o=>o.lc));
+    const maxC = Math.max(...obj.map(o=>o.lc));
 
-        const x0 = minC*STEP;
-        const y0 = minR*STEP;
-        const bw = (maxC-minC+1)*CELL + (maxC-minC)*GAP;
-        const bh = (maxR-minR+1)*CELL + (maxR-minR)*GAP;
+    const x0 = minC*STEP;
+    const y0 = minR*STEP;
+    const bw = (maxC-minC+1)*CELL + (maxC-minC)*GAP;
+    const bh = (maxR-minR+1)*CELL + (maxR-minR)*GAP;
 
-        const g = svgEl("g", { transform: `translate(0 ${2*(y0 + bh/2)}) scale(1 -1)` });
-        svg.appendChild(g);
+    // Tee <image> käsin, jotta sekä href että xlink:href tulee oikein
+    const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    img.setAttribute("x", String(x0));
+    img.setAttribute("y", String(y0));
+    img.setAttribute("width", String(bw));
+    img.setAttribute("height", String(bh));
+    img.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
-        const cx = x0 + bw/2;
-        const topY = y0 + 8;
-        const botY = y0 + bh - 8;
+    // tärkeä: molemmat, jotta Safari/iOS toimii
+    img.setAttribute("href", "alus.png");
+    img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "alus.png");
+	
+	const DX = 0;
+const DY = 8;
 
-        const wingL = x0 + 6;
-        const wingR = x0 + bw - 6;
+img.setAttribute("x", String(x0 + DX));
+img.setAttribute("y", String(y0 + DY));
 
-        const bodyW = bw * 0.28;
-        const bodyL = cx - bodyW/2;
-        const bodyR = cx + bodyW/2;
 
-        const noseY = topY - Math.min(18, CELL*0.35);
-        const wingMidY = y0 + bh*0.52;
+const SCALE = 2.5; // ← muuta tätä (1.1–1.5 on hyvä alue)
 
-        g.appendChild(svgEl("path", {
-          d: pathD([
-            {x: wingL+6, y: wingMidY+6},
-            {x: bodyL,   y: topY+10},
-            {x: cx,      y: noseY+18},
-            {x: bodyR,   y: topY+10},
-            {x: wingR-6, y: wingMidY+6},
-            {x: bodyR-8, y: botY},
-            {x: bodyL+8, y: botY}
-          ]),
-          fill: "rgba(255,255,255,.18)"
-        }));
+const cx = x0 + bw/2;
+const cy = y0 + bh/2;
 
-        const shipPath = pathD([
-          {x: wingL,  y: wingMidY},
-          {x: bodyL,  y: topY+6},
-          {x: cx,     y: noseY},
-          {x: bodyR,  y: topY+6},
-          {x: wingR,  y: wingMidY},
-          {x: bodyR,  y: botY},
-          {x: bodyL,  y: botY}
-        ]);
+let tf = `translate(${cx} ${cy}) scale(${SCALE}) translate(${-cx} ${-cy})`;
 
-        g.appendChild(svgEl("path", {
-          d: shipPath,
-          fill: "rgba(255,255,255,.92)",
-          stroke: "rgba(255,255,255,.35)",
-          "stroke-width": 2,
-          "stroke-linejoin": "round"
-        }));
 
-        const innerW = bodyW * 0.72;
-        g.appendChild(svgEl("rect", {
-          x: cx - innerW/2,
-          y: topY + 14,
-          width: innerW,
-          height: Math.max(18, (botY - topY)*0.40),
-          rx: 10, ry: 10,
-          fill: "rgba(0,0,0,.12)"
-        }));
+img.setAttribute("transform", tf);
 
-        const engY1 = botY - 18;
-        const engY2 = botY - 6;
-        const engDx = Math.max(10, bodyW*0.18);
 
-        g.appendChild(svgEl("line", {
-          x1: cx - engDx, y1: engY1,
-          x2: cx - engDx, y2: engY2,
-          stroke: "rgba(255,0,0,.85)",
-          "stroke-width": 6,
-          "stroke-linecap": "round"
-        }));
-        g.appendChild(svgEl("line", {
-          x1: cx + engDx, y1: engY1,
-          x2: cx + engDx, y2: engY2,
-          stroke: "rgba(255,0,0,.85)",
-          "stroke-width": 6,
-          "stroke-linecap": "round"
-        }));
-      }
 
-      // esteviiva “oo”-ruutujen välissä (kuten sinulla)
-      const objSetL1 = new Set(obj.map(o => o.r1+","+o.c1));
-      const baseOnly = [];
-      for(const [r0,c0] of baseCells0){
-        if(r0<0||c0<0||r0>=N0||c0>=N0) continue;
-        const r1 = r0 + L1_OFF, c1 = c0 + L1_OFF;
-        if(!objSetL1.has(r1+","+c1)){
-          baseOnly.push({ r1, c1, lr: r1 - minBaseR, lc: c1 - minBaseC });
-        }
-      }
 
-      let pair = null;
-      for(let i=0;i<baseOnly.length;i++){
-        for(let j=i+1;j<baseOnly.length;j++){
-          const A = baseOnly[i], B = baseOnly[j];
-          if(A.lr === B.lr && Math.abs(A.lc - B.lc) === 1){
-            pair = (A.lc < B.lc) ? [A,B] : [B,A];
-            break;
-          }
-        }
-        if(pair) break;
-      }
+    svg.appendChild(img);
+  }
 
-      if(pair){
-        const [L,R] = pair;
-        const x = (Math.min(L.lc, R.lc)+1)*STEP - GAP/2;
-        const y1 = L.lr*STEP + 0;
-        const y2 = L.lr*STEP + CELL - 25;
 
-        svg.appendChild(svgEl("line", {
-          x1: x, y1: y1,
-          x2: x, y2: y2,
-          stroke: "rgba(255,255,255,.95)",
-          "stroke-width": 12,
-          "stroke-linecap": "round"
-        }));
-      }
-    }
+}
+
 
     art.appendChild(svg);
     mask.appendChild(art);

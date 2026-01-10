@@ -3,7 +3,7 @@
   "version": 1,
   "puzzles": [
     {
-      "name": "Starter 1",
+      "name": "Starter 1 - 6",
       "emptySlot": 8,
       "slots": [
         {
@@ -54,7 +54,7 @@
       ]
     },
     {
-      "name": "Starter 2",
+      "name": "Starter 2 - 6",
       "emptySlot": 8,
       "slots": [
         {
@@ -105,7 +105,7 @@
       ]
     },
     {
-      "name": "Starter 3",
+      "name": "Starter 3 - 8",
       "emptySlot": 8,
       "slots": [
         {
@@ -156,7 +156,7 @@
       ]
     },
     {
-      "name": "Starter 4",
+      "name": "Starter 4 - 7",
       "emptySlot": 3,
       "slots": [
         {
@@ -207,7 +207,7 @@
       ]
     },
     {
-      "name": "Starter 5",
+      "name": "Starter 5 - 10",
       "emptySlot": 2,
       "slots": [
         {
@@ -258,7 +258,7 @@
       ]
     },
     {
-      "name": "Starter 6",
+      "name": "Starter 6 - 8",
       "emptySlot": 8,
       "slots": [
         {
@@ -309,7 +309,7 @@
       ]
     },
     {
-      "name": "Starter 7",
+      "name": "Starter 7 - 12",
       "emptySlot": 8,
       "slots": [
         {
@@ -360,7 +360,7 @@
       ]
     },
     {
-      "name": "Starter 8",
+      "name": "Starter 8 - 9",
       "emptySlot": 5,
       "slots": [
         {
@@ -411,7 +411,7 @@
       ]
     },
     {
-      "name": "Starter 9",
+      "name": "Starter 9 - 10",
       "emptySlot": 8,
       "slots": [
         {
@@ -462,7 +462,7 @@
       ]
     },
     {
-      "name": "Starter 10",
+      "name": "Starter 10 -14",
       "emptySlot": 8,
       "slots": [
         {
@@ -513,7 +513,7 @@
       ]
     },
     {
-      "name": "Starter 11",
+      "name": "Starter 11 - 15",
       "emptySlot": 5,
       "slots": [
         {
@@ -564,7 +564,7 @@
       ]
     },
     {
-      "name": "Starter 12",
+      "name": "Starter 12 - 7",
       "emptySlot": 5,
       "slots": [
         {
@@ -615,7 +615,7 @@
       ]
     },
     {
-      "name": "Junior 13",
+      "name": "Junior 13 - 13",
       "emptySlot": 5,
       "slots": [
         {
@@ -666,7 +666,7 @@
       ]
     },
     {
-      "name": "Junior 14",
+      "name": "Junior 14 - 15",
       "emptySlot": 3,
       "slots": [
         {
@@ -717,7 +717,7 @@
       ]
     },
     {
-      "name": "Junior 15",
+      "name": "Junior 15 - 17",
       "emptySlot": 5,
       "slots": [
         {
@@ -768,7 +768,7 @@
       ]
     },
     {
-      "name": "Junior 16",
+      "name": "Junior 16 - 8",
       "emptySlot": 4,
       "slots": [
         {
@@ -819,7 +819,7 @@
       ]
     },
     {
-      "name": "Junior 17",
+      "name": "Junior 17 - 16",
       "emptySlot": 8,
       "slots": [
         {
@@ -870,7 +870,7 @@
       ]
     },
     {
-      "name": "Junior 18",
+      "name": "Junior 18 - 18",
       "emptySlot": 6,
       "slots": [
         {
@@ -921,7 +921,7 @@
       ]
     },
     {
-      "name": "Junior 19",
+      "name": "Junior 19 - 17",
       "emptySlot": 3,
       "slots": [
         {
@@ -972,7 +972,7 @@
       ]
     },
     {
-      "name": "Junior 20",
+      "name": "Junior 20 - 17",
       "emptySlot": 7,
       "slots": [
         {
@@ -1023,7 +1023,7 @@
       ]
     },
     {
-      "name": "Junior 21",
+      "name": "Junior 21 - 17",
       "emptySlot": 5,
       "slots": [
         {
@@ -1074,7 +1074,7 @@
       ]
     },
     {
-      "name": "Junior 22",
+      "name": "Junior 22 - 20",
       "emptySlot": 6,
       "slots": [
         {
@@ -1125,7 +1125,7 @@
       ]
     },
     {
-      "name": "Junior 23",
+      "name": "Junior 23 - 20",
       "emptySlot": 4,
       "slots": [
         {
@@ -1176,7 +1176,7 @@
       ]
     },
     {
-      "name": "Junior 24",
+      "name": "Junior 24 - 25",
       "emptySlot": 5,
       "slots": [
         {
@@ -1227,7 +1227,7 @@
       ]
     },
     {
-      "name": "Expert 25",
+      "name": "Expert 25 - 15",
       "emptySlot": 9,
       "slots": [
         {
@@ -1278,7 +1278,7 @@
       ]
     },
     {
-      "name": "Expert 26",
+      "name": "Expert 26 - 16",
       "emptySlot": 2,
       "slots": [
         {
@@ -1329,7 +1329,7 @@
       ]
     },
     {
-      "name": "Expert 27",
+      "name": "Expert 27 - 26",
       "emptySlot": 4,
       "slots": [
         {
@@ -1380,7 +1380,7 @@
       ]
     },
     {
-      "name": "Expert 28",
+      "name": "Expert 28 - 25",
       "emptySlot": 5,
       "slots": [
         {
@@ -1431,7 +1431,7 @@
       ]
     },
     {
-      "name": "Expert 29",
+      "name": "Expert 29- 33",
       "emptySlot": 5,
       "slots": [
         {
@@ -1482,7 +1482,7 @@
       ]
     },
     {
-      "name": "Expert 30",
+      "name": "Expert 30 - 32",
       "emptySlot": 2,
       "slots": [
         {
@@ -1533,7 +1533,7 @@
       ]
     },
     {
-      "name": "Expert 31",
+      "name": "Expert 31 - 29",
       "emptySlot": 5,
       "slots": [
         {
@@ -1584,7 +1584,7 @@
       ]
     },
     {
-      "name": "Expert 32",
+      "name": "Expert 32 - 34",
       "emptySlot": 2,
       "slots": [
         {
@@ -1635,7 +1635,7 @@
       ]
     },
     {
-      "name": "Expert 33",
+      "name": "Expert 33 - 32",
       "emptySlot": 8,
       "slots": [
         {
@@ -1686,7 +1686,7 @@
       ]
     },
     {
-      "name": "Expert 34",
+      "name": "Expert 34 - 25",
       "emptySlot": 7,
       "slots": [
         {
@@ -1737,7 +1737,7 @@
       ]
     },
     {
-      "name": "Expert 35",
+      "name": "Expert 35 - 27",
       "emptySlot": 5,
       "slots": [
         {
@@ -1788,7 +1788,7 @@
       ]
     },
     {
-      "name": "Expert 36",
+      "name": "Expert 36 - 19",
       "emptySlot": 5,
       "slots": [
         {
@@ -1839,7 +1839,7 @@
       ]
     },
     {
-      "name": "Master 37",
+      "name": "Master 37 - 30",
       "emptySlot": 6,
       "slots": [
         {
@@ -1890,7 +1890,7 @@
       ]
     },
     {
-      "name": "Master 38",
+      "name": "Master 38 - 20",
       "emptySlot": 2,
       "slots": [
         {
@@ -1941,7 +1941,7 @@
       ]
     },
     {
-      "name": "Master 39",
+      "name": "Master 39 - 23",
       "emptySlot": 3,
       "slots": [
         {
@@ -1992,7 +1992,7 @@
       ]
     },
     {
-      "name": "Master 40",
+      "name": "Master 40 - 21",
       "emptySlot": 3,
       "slots": [
         {
@@ -2043,7 +2043,7 @@
       ]
     },
     {
-      "name": "Master 41",
+      "name": "Master 41 - 20",
       "emptySlot": 2,
       "slots": [
         {
@@ -2094,7 +2094,7 @@
       ]
     },
     {
-      "name": "Master 42",
+      "name": "Master 42 - 27",
       "emptySlot": 5,
       "slots": [
         {
@@ -2145,7 +2145,7 @@
       ]
     },
     {
-      "name": "Master 43",
+      "name": "Master 43 - 39",
       "emptySlot": 1,
       "slots": [
         {
@@ -2196,7 +2196,7 @@
       ]
     },
     {
-      "name": "Master 44",
+      "name": "Master 44 - 36",
       "emptySlot": 6,
       "slots": [
         {
@@ -2247,7 +2247,7 @@
       ]
     },
     {
-      "name": "Master 45",
+      "name": "Master 45- 33",
       "emptySlot": 3,
       "slots": [
         {
@@ -2298,7 +2298,7 @@
       ]
     },
     {
-      "name": "Master 46",
+      "name": "Master 46 - 45",
       "emptySlot": 5,
       "slots": [
         {
@@ -2349,7 +2349,7 @@
       ]
     },
     {
-      "name": "Master 47",
+      "name": "Master 47 - 34",
       "emptySlot": 4,
       "slots": [
         {
@@ -2400,7 +2400,7 @@
       ]
     },
     {
-      "name": "Master 48",
+      "name": "Master 48 - 47",
       "emptySlot": 1,
       "slots": [
         {
@@ -2451,7 +2451,7 @@
       ]
     },
     {
-      "name": "Wizard 49",
+      "name": "Wizard 49 - 43",
       "emptySlot": 3,
       "slots": [
         {
@@ -2502,7 +2502,7 @@
       ]
     },
     {
-      "name": "Wizard 50",
+      "name": "Wizard 50 - 66",
       "emptySlot": 8,
       "slots": [
         {
@@ -2553,7 +2553,7 @@
       ]
     },
     {
-      "name": "Wizard 51",
+      "name": "Wizard 51 - 54",
       "emptySlot": 8,
       "slots": [
         {
@@ -2604,7 +2604,7 @@
       ]
     },
     {
-      "name": "Wizard 52",
+      "name": "Wizard 52 - 72",
       "emptySlot": 6,
       "slots": [
         {
@@ -2655,7 +2655,7 @@
       ]
     },
     {
-      "name": "Wizard 53",
+      "name": "Wizard 53 - 57",
       "emptySlot": 3,
       "slots": [
         {
@@ -2706,7 +2706,7 @@
       ]
     },
     {
-      "name": "Wizard 54",
+      "name": "Wizard 54 - 67",
       "emptySlot": 5,
       "slots": [
         {
@@ -2757,7 +2757,7 @@
       ]
     },
     {
-      "name": "Wizard 55",
+      "name": "Wizard 55 - 52",
       "emptySlot": 8,
       "slots": [
         {
@@ -2808,7 +2808,7 @@
       ]
     },
     {
-      "name": "Pulma 56",
+      "name": "Pulma 56 - 60",
       "emptySlot": 6,
       "slots": [
         {
@@ -2859,7 +2859,7 @@
       ]
     },
     {
-      "name": "Wizard 57",
+      "name": "Wizard 57 - 93",
       "emptySlot": 7,
       "slots": [
         {
@@ -2910,7 +2910,7 @@
       ]
     },
     {
-      "name": "Wizard 58",
+      "name": "Wizard 58 - 77",
       "emptySlot": 1,
       "slots": [
         {
@@ -2961,7 +2961,7 @@
       ]
     },
     {
-      "name": "Wizard 59",
+      "name": "Wizard 59 - 94",
       "emptySlot": 8,
       "slots": [
         {
@@ -3012,7 +3012,7 @@
       ]
     },
     {
-      "name": "Wizard 60",
+      "name": "Wizard 60 - 109",
       "emptySlot": 5,
       "slots": [
         {

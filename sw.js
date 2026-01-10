@@ -1,5 +1,5 @@
 /* Minimal SW: cache app shell */
-const CACHE = "asteroid-test-v6";
+const CACHE = "asteroid-test-v7";
 const ASSETS = [
   "./",
   "./index.html",

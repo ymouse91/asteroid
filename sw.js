@@ -5,7 +5,8 @@ const ASSETS = [
   "./index.html",
   "./manifest.webmanifest",
   "./asteroid_escape_puzzles.json",
-  "./icon192.png"
+  "./icon192.png",
+  "./alus.png"
   
 ];
 

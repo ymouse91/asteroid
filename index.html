@@ -7,11 +7,13 @@
       content="width=device-width,
                initial-scale=1,
                maximum-scale=1,
+			    viewport-fit=cover",
                user-scalable=no">
 
   <title>Asteroid Escape</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0b1533">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta property="og:image" content="https://ymouse91.github.io/asteroid/icon192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="icon" sizes="192x192" href="./icon192.png">
@@ -25,19 +27,32 @@
       --ink: #eaf0ff;
       --accent: #7bd4ff;
       --warn: #ffcc66;
+	  --vh: 1vh;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 30% 10%, #162a67 0%, var(--bg) 55%, #070c1d 100%);
-      color: var(--ink);
-      min-height: 100svh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
-    }
+	
+	html, body {
+  height: 100%;
+  min-height: 100%;
+    background: var(--bg);            /* ettei ikinä paljastu valkoista */
+  background-color: var(--bg);
+}
+
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: radial-gradient(1200px 800px at 30% 10%, #162a67 0%, var(--bg) 55%, #070c1d 100%);
+  color: var(--ink);
+
+  /* TÄRKEÄT RIVIT */
+  min-height: calc(var(--vh, 1vh) * 100);
+
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
     .app{
       width: min(760px, 100%);
       display:grid;
@@ -1515,6 +1530,16 @@ document.addEventListener("touchend", e => {
   boot();
   registerSW();
 })();
+
+function setVH(){
+  document.documentElement.style.setProperty(
+    "--vh",
+    `${window.innerHeight * 0.01}px`
+  );
+}
+setVH();
+window.addEventListener("resize", setVH);
+
 </script>
 <!-- QR Koodi yms… -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
